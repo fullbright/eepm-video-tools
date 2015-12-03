@@ -3,8 +3,14 @@ This repository contains scripts for the video department at Paris Bastille.
 
 # Installation
 
-## install the launchd daemon
-THe idea is that the mac os x computer call periodically the script and upload the files to the ftp
+## Install the launchd daemon
+The idea is that the mac os x computer call periodically the script and upload the files to the ftp
+
+ 1. Edit the fr.monegliseaparis.dev.ftpuploads to suit your needs.
+ 2. Copy the file to /Library/LaunchDaemons/
+ 3. Reboot the mac
+
+
 
 # Usage
 
