@@ -29,14 +29,13 @@ if [ -a $configfilename ]; then
 	else
 		echo "Lock file doesn't exist. Executing the script ..."
 
-		echo "Touching a new file in that directory"
-		echo "Here is the pid of the process"
+		echo "Wrting the current date to the file $lockfilename"
 		echo $(date) > $lockfilename
 
 		echo Here is the content of the lockfile
 		cat $lockfilename
 
-		for videofile in *.{mov,plist,mp4}; do 
+		for videofile in $sourcepath/*.{mov,plist,mp4}; do 
 			echo "Processing $videofile file.."; 
 
 			# else execute the script
