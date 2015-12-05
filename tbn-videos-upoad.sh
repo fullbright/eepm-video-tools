@@ -9,6 +9,7 @@
 
 # Documentation at : http://www.thegeekstuff.com/2012/04/curl-examples/
 
+echo "Starting script ftp uploader"
 scriptdirectory="$(dirname "$0")"
 echo Moving to script directory $scriptdirectory
 cd $(dirname "$0")
