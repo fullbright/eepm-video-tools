@@ -7,7 +7,7 @@
     <key>ProgramArguments</key>
     <array>
         <string>/bin/bash</string>
-        <string>/Users/sergio/Downloads/eepb-youtube-autoupload/youtube-upload.sh</string>
+        <string>/Applications/eepm-video-tools.app/tbn-videos-upoad.sh</string>
     </array>
     <key>StartInterval</key>
     <integer>900</integer>
