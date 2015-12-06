@@ -10,7 +10,13 @@ The idea is that the mac os x computer call periodically the script and upload t
  2. Copy the file to /Library/LaunchDaemons/
  3. Reboot the mac
 
+## Install the libraries for the youtube uploader
+> sudo pip install --upgrade google-api-python-client --ignore-installed six
 
+If something failed, try the following:
+ * brew doctor
+ * brew install python
+ * brew update
 
 # Usage
 
