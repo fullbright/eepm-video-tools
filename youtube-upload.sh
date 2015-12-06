@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #################################### 
-# This script uploads videos to ftp 
+# This script uploads videos to youtube 
 # Author : S. Afanou
 # Date : Nov 2015
 # email : afanousergio@gmail.com
@@ -14,7 +14,7 @@ echo Moving to script directory $scriptdirectory
 cd $(dirname "$0")
 echo Current directory is $(pwd)
 
-configfilename=ftp.uploader.cfg
+configfilename=youtube.uploader.cfg
 
 echo Reading configuration file $configfilename...
 if [ -a $configfilename ]; then
@@ -38,17 +38,19 @@ if [ -a $configfilename ]; then
 		for videofile in $sourcepath/*.{mov,mxf,mp4}; do 
 			echo "Processing $videofile file.."; 
 
+			videotitle=$(basename $videofile)
+
 			# else execute the script
 			echo "Processing video file $videofile"
-			echo "curl -C- -T $videofile -w %{http_code} --retry 5 --retry-delay 0 -v -u $ftpuser:$ftppass $ftpserver"
-			responsecode=$(curl -C- -T $videofile -w %{http_code} --retry 5 --retry-delay 0 -v -u $ftpuser:$ftppass $ftpserver)
+			echo 'python youtube-upload.py --file=$videofile --title="$videotitle auto uploaded" --description="Automatically uploaded $videotitle in private mode." --keywords="Eglise Paris Metropole, Eglise Paris Bastille", --category=22 --privacyStatus="private" --noauth_local_webserver'
+			responsecode=$(python youtube-upload.py --file=$videofile --title="$videotitle auto uploaded" --description="Automatically uploaded $videotitle in private mode." --keywords="Eglise Paris Metropole, Eglise Paris Bastille", --category=22 --privacyStatus="private" --noauth_local_webserver)
 			#sleep 30
 			
 			echo Upload finished.
 			echo Http code is $responsecode
 
-			if [[ $responsecode == 2* ]]; then
-				echo "The response code starts with 2. Full code is $responsecode"
+			if [[ $responsecode == *successfully* ]]; then
+				echo "The response code contains 'successfully'. Full code is $responsecode"
 
 				echo "Moving the file to the $destination"
 				mv $videofile $destination
