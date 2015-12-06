@@ -1,0 +1,43 @@
+#!/bin/sh -e
+
+#################################### 
+# This script facilitates the installation
+# of the video upload application on a MAc OS X System
+# Author : S. Afanou
+# Date : Nov 2015
+# email : afanousergio@gmail.com
+#
+# Inspired from: http://superuser.com/questions/943983/os-x-launchdaemon-not-running-service-could-not-initialize
+####################################
+
+echo "Starting the installation ..."
+
+echo "To Be Done : Ask questions to collect ftp and youtube credentials"
+
+echo "Processing the .sh files to make them executable"
+for shellscript in *.{sh}; do 
+	echo -n "Processing the shell script $shellscript ... "
+	sudo chmod +x $shellscript
+	echo "Done."
+fi
+
+echo "Processing the plist files to let launchd use them"
+for plistfile in *.{plist}; do 
+
+	echo Processing plist file $plistfile
+	#plistfile="com.wintr.eodemail.plist"
+	plist_filename=$(basename "$plistfile")
+	install_path="/Library/LaunchDaemons/$plist_filename"
+
+	echo "Installing launchctl plist: $plistfile --> $install_path"
+	sudo cp -f "$plistfile" "$install_path"
+	sudo chown root "$install_path"
+	sudo chmod 644 "$install_path"
+
+	sudo launchctl unload "$install_path"
+	sudo launchctl load "$install_path"
+
+	echo "to check if it's running, run this command: sudo launchctl list | grep wintr"
+	echo "to uninstall, run this command: sudo launchctl unload \"$install_path\""
+
+fi
