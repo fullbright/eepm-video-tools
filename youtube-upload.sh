@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 #################################### 
 # This script uploads videos to youtube 
@@ -7,7 +7,8 @@
 # email : afanousergio@gmail.com
 ####################################
 
-
+echo "Python location"
+which python
 echo "Starting script youtube uploader"
 scriptdirectory="$(dirname "$0")"
 echo Moving to script directory $scriptdirectory
@@ -34,6 +35,8 @@ if [ -a $configfilename ]; then
 
 		echo Here is the content of the lockfile
 		cat $lockfilename
+		echo "-------------------------------------------------"
+		echo ""
 
 		for videofile in $sourcepath/*.{mov,mxf,mp4}; do 
 			echo "Processing $videofile file.."; 
@@ -42,8 +45,8 @@ if [ -a $configfilename ]; then
 
 			# else execute the script
 			echo "Processing video file $videofile"
-			echo 'python youtube-upload.py --file=$videofile --title="$videotitle auto uploaded" --description="Automatically uploaded $videotitle in private mode." --keywords="Eglise Paris Metropole, Eglise Paris Bastille", --category=22 --privacyStatus="private" --noauth_local_webserver'
-			responsecode=$(python youtube-upload.py --file=$videofile --title="$videotitle auto uploaded" --description="Automatically uploaded $videotitle in private mode." --keywords="Eglise Paris Metropole, Eglise Paris Bastille", --category=22 --privacyStatus="private" --noauth_local_webserver)
+			echo "python youtube-upload.py --file=$videofile --title=\"$videotitle auto uploaded\" --description=\"Automatically uploaded $videotitle in private mode.\" --keywords=\"Eglise Paris Metropole, Eglise Paris Bastille\", --category=22 --privacyStatus=\"private\" --noauth_local_webserver"
+			responsecode=$(/usr/local/bin/python youtube-upload.py --file=$videofile --title="$videotitle auto uploaded" --description="Automatically uploaded $videotitle in private mode." --keywords="Eglise Paris Metropole, Eglise Paris Bastille", --category=22 --privacyStatus="private" --noauth_local_webserver)
 			#sleep 30
 			
 			echo Upload finished.
