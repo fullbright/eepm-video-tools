@@ -1,0 +1,9 @@
+PyVimeo
+google-api-python-client
+six
+requests
+requests-toolbelt
+simplejson
+dailymotion
+httplib2
+oauth2client
