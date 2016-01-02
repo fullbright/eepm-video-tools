@@ -6,10 +6,10 @@ import json
 
 # load the variables
 
-def load_variables():
+def load_variables(configfile):
     configvars = {}
     # read the configuration file
-    with open("dailymotion.uploader.cfg") as myfile:
+    with open(configfile) as myfile:
         for line in myfile:
             if not line.startswith('#') and not line.strip() == '' : # ignore line begining with #
                 name, var = line.partition("=")[::2]
@@ -35,6 +35,23 @@ def upload(videofile, title, API_KEY, API_SECRET, USERNAME, PASSWORD):
 
     return d.post('/me/videos',
 		{'url': url, 'title': title, 'published': 'false', 'channel': 'lifestyle'})
+
+def check_lock_file(lockfilename):
+    """ Checks if the lockfile exist, 
+    If yes, it makes sure that the PID inside is still running.
+    If so, print a message and exit """
+    if os.path.exists(lockfilename):
+        print "Lockfile %s exists. Checking if the process pid is still alive ..." % lockfilename
+        
+        if check_pid_in_file(lockfilename):
+            print "Process with PID %s is still running. Exiting ..." % currentpid
+            exit(0)
+        else:
+            write_lock_file(lockfilename)
+    else:
+        write_lock_file(lockfilename)
+
+
 
 def check_pid_in_file(filename):
     """ Read the pid from the file 
@@ -75,7 +92,7 @@ def main():
 
     print "--------------- Starting the dailymotion process --------------- "
     validextensions = [".mp4", ".mov"]
-    configvars = load_variables()
+    configvars = load_variables("dailymotion.uploader.cfg")
 
     API_KEY = configvars['dailymotionkey'].rstrip()
     API_SECRET = configvars['dailymotionsecretkey'].rstrip()
@@ -84,19 +101,9 @@ def main():
     lockfilename = configvars['lockfilename'].rstrip()
     sourcepath = configvars['sourcepath'].rstrip()
 
-    # if the lockfile exist, print a message and exit
-    if os.path.exists(lockfilename):
-        print "Lockfile %s exists. Checking if the process pid is still alive ..." % lockfilename
-        
-        if check_pid_in_file(lockfilename):
-            print "Process with PID %s is still running. Exiting ..." % currentpid
-            exit(0)
-        else:
-            write_lock_file(lockfilename)
-    else:
-        write_lock_file(lockfilename)
-
-
+    # prevent double upload with a lock file
+    check_lock_file(lockfilename)
+    
     # pick the first video and upload it    
     print "Processing the source path" , sourcepath
     nextfiletoprocess = ""
