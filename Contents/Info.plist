@@ -5,7 +5,7 @@
   <key>CFBundleExecutable</key>
   <string>ExecutableFileName</string>
   <key>CFBundleIconFile</key>
-  <string>icon</string>
+  <string>EepmVideoUploader.icns</string>
   <key>CFBundleIdentifier</key>
   <string>fr.monegliseaparis.videouploader</string>
 </dict>
