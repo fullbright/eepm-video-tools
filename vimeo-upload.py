@@ -3,6 +3,7 @@
 import vimeo
 import os
 import json
+import requests
 import dailymotion_upload
 
 def store_token(token, filename):
@@ -18,6 +19,16 @@ def retrieve_token(filename):
 
         return token
 
+def set_video_title(access_token, video_uri, title, description, privacy):
+    payload = {'name': title, 'description': description, 'privacy.view': privacy}
+    video_full_url = "https://api.vimeo.com" + video_uri
+    print "Set video title. Url is %s and payload is %s" % (video_full_url, payload)
+
+    print "Setting access_token %s in the Authorization header" % access_token
+    auth_headers = {'Authorization': 'Bearer ' + access_token}
+    print auth_headers
+    
+    return requests.patch("https://api.vimeo.com" + video_uri, data=payload, headers=auth_headers)
 
 def main():
     print "-------  Starting Vimeo upload --------"
@@ -49,29 +60,35 @@ def main():
 
     # Got our file, then upload it
     nextfiletoprocess_title = "%s auto uploaded" % nextfiletoprocess_name
+    nextfiletoprocess_description = "%s auto described. A real description must go here." % nextfiletoprocess_name
 
     v = vimeo.VimeoClient(token=API_TOCKEN, key=API_KEY, secret=API_SECRET)
     about_me = v.get('/me')
-    print "About me status code %s and body is %s" % (about_me.status_code, about_me.json())
 
-    #token = v.load_client_credentials()
-    #store_token(token, tokenfilename)
-
-    #v2 = vimeo.VimeoClient(token=token, key=API_KEY, secret=API_SECRET)
-
+    if about_me.status_code == 200 :
+        print "I can connect to the account. About me status code is %s and the name is %s" % (about_me.status_code, about_me.json())
+    else:
+        print "We are not authenticated. Status code is %s", about_me.status_code
+    
     print "Uploading video ", nextfiletoprocess_path
     video_uri = v.upload(nextfiletoprocess_path)
+    #video_uri = '/videos/152054345'
+    print "Done. Video uri is", video_uri
 
-    #response = upload(nextfiletoprocess_path, nextfiletoprocess_title, API_KEY, API_SECRET, USERNAME, PASSWORD)
-    #response = "{u'owner': u'xok987', u'id': u'x3kh5zt', u'channel': u'news', u'title': u'PF_video10.mov auto uploaded'}"
+    print "Setting the title of the video %s to %s" % (video_uri, nextfiletoprocess_title)
+    #response = v.patch(video_uri, {'name': 'nextfiletoprocess_title', 'description': 'This is the videos description.'})
+    response = set_video_title(v.token, video_uri, nextfiletoprocess_title, nextfiletoprocess_description, 'nobody')
 
     # check if the upload is ok
     #response = response.replace("'", "\"")
     print response
+    print response.status_code
+    print response.text
+    print dir(response)
     #jsonresponse = json.loads(response)
 
-    if 'id' in response.keys() :
-        print "Upload was successfull. %s found in %s" % (nextfiletoprocess_title, response)
+    if response.status_code == 200 :
+        print "Upload and metadata set was successfull. Status code value was %s" % (response.status_code)
         # move the file to the archive folder
         destinationpath = configvars['destination'].rstrip()
         dst = os.path.join(destinationpath, name)
@@ -79,8 +96,8 @@ def main():
         os.rename(nextfiletoprocess_path, dst)
 
     else:
-        print "%s was not found in %s" % (nextfiletoprocess_title, response)
         print "Upload failed. File will not be moved to the archive so we can process it next time."
+        print "Status code was %s" % (response.status_code)
 
 
 
