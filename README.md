@@ -25,6 +25,36 @@ If something failed, try the following:
  * brew install python
  * brew update
 
+## Vimeo video upload
+To be able to upload a video to vimeo using the application, you need to create an application.
+
+### Create an application
+
+	#. Go to https://developer.vimeo.com/apps
+	#. Click on the "Create application button"
+	#. Fill the form with the necessary information
+	#. Agree to the terms and conditions
+	#. Click the "Create app" button
+
+Then, after creating the application, go to the application's page by clicking on it's name. You will be presented with the app's details page.
+
+
+### Important : request an upload access
+
+Go through the process of requesting an upload access. It can take up to 5 working days to get the approval.
+
+### Authenticate
+
+Next to the details link, click on "Authentication"
+
+Note the client id and client secret. You will need them to authenticate and upload videos.
+
+### Generate an access token
+
+	#. Scroll down to the bottom of the page
+	#. You want to select the following scopes : public private purchased create edit delete interact upload
+	#. Click the buttom "Generate token" to generate an access token.
+
 # Usage
 
 If you want to upload automatically another set of files, edit directly the script.
