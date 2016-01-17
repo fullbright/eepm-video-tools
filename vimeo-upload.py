@@ -24,7 +24,7 @@ def set_video_title(access_token, video_uri, title, description, privacy):
     video_full_url = "https://api.vimeo.com" + video_uri
     print "Set video title. Url is %s and payload is %s" % (video_full_url, payload)
 
-    print "Setting access_token %s in the Authorization header" % access_token
+    #print "Setting access_token %s in the Authorization header" % access_token
     auth_headers = {'Authorization': 'Bearer ' + access_token}
     print auth_headers
     
@@ -80,11 +80,6 @@ def main():
     response = set_video_title(v.token, video_uri, nextfiletoprocess_title, nextfiletoprocess_description, 'nobody')
 
     # check if the upload is ok
-    #response = response.replace("'", "\"")
-    print response
-    print response.status_code
-    print response.text
-    print dir(response)
     #jsonresponse = json.loads(response)
 
     if response.status_code == 200 :
