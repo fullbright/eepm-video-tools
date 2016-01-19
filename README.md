@@ -10,7 +10,7 @@ The idea is that the mac os x computer call periodically the script and upload t
  2. Copy the file to /Library/LaunchDaemons/
  3. Reboot the mac
 
-## Install the libraries for the youtube uploader
+## Install the libraries for the uploader
 
 	sudo pip install --upgrade google-api-python-client --ignore-installed six 
 	pip install PyVimeo
@@ -25,6 +25,32 @@ If something failed, try the following:
  * brew doctor
  * brew install python
  * brew update
+
+### Configure FTP Uploads
+
+	TO BE DONE.
+
+### Configure Youtube upload feature
+
+
+#### Create an application and retrieve the API Keys and API secret
+
+Connect to http://console.google.com and create an application.
+Retrieve the client credentials json files.
+
+
+#### Authorize the tool to upload videos to your channel
+
+To be able to automatically upload the videos to youtube, you need to connect to our channel through a web browser.
+The command you are going to run will try to upload a video and you will be asked to approve the action.
+
+You will need to following :
+	1. A video to upload. Replace the $videofile with the video to upload
+	2. A title and description for the video. Replace the $videotitle
+
+
+Execute the following command : 
+	python youtube-upload.py --file=$videofile --title="$videotitle auto uploaded" --description="Automatically uploaded $videotitle in private mode." --keywords="Eglise Paris Metropole, Eglise Paris Bastille", --category=22 --privacyStatus="private"
 
 ### Vimeo video upload
 To be able to upload a video to vimeo using the application, you need to create an application.
