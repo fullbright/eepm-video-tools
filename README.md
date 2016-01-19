@@ -12,14 +12,14 @@ The idea is that the mac os x computer call periodically the script and upload t
 
 ## Install the libraries for the youtube uploader
 
- > sudo pip install --upgrade google-api-python-client --ignore-installed six 
- > pip install PyVimeo
- > pip install requests
- > pip install requests-toolbelt
- > pip install simplejson
- > pip install dailymotion
- > pip install httplib2
- > pip install oauth2client
+	sudo pip install --upgrade google-api-python-client --ignore-installed six 
+	pip install PyVimeo
+	pip install requests
+	pip install requests-toolbelt
+	pip install simplejson
+	pip install dailymotion
+	pip install httplib2
+	pip install oauth2client
 
 If something failed, try the following:
  * brew doctor
