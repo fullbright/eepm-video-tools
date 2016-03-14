@@ -21,6 +21,9 @@ echo "Current directory is $(pwd)"
 echo "To Be Done : Ask questions to collect ftp and youtube credentials"
 echo "To Be Done : Copy and paste the client_secrets.json file to the place where the youtube-upload.py is located"
 
+echo "Installing requirements with pip"
+pip install -r requirements.txt
+
 echo "Processing the .sh files to make them executable"
 for shellscript in *.sh; do 
 	echo "Processing the shell script $shellscript ... "
