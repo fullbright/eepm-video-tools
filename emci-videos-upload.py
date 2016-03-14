@@ -283,6 +283,13 @@ def main():
 
 
     print "-------  Starting EMCI upload --------"
+
+    print "Moving to the folder where the python script is located"
+    abspath = os.path.abspath(__file__)
+    dname = os.path.dirname(abspath)
+    print "Changing directory to", dname
+    os.chdir(dname)
+
     validextensions = [".mp4", ".mov"]
     configvars = dailymotion_upload.load_variables("emci.uploader.cfg")
 
