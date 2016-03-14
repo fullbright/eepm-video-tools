@@ -17,7 +17,6 @@ import urllib, urllib2, cookielib
 import poster
 import os.path
 import mimetypes
-import fileupload
 import json
 from StringIO import StringIO
 
