@@ -7,6 +7,7 @@ import time
 import dailymotion_upload as dailymotion
 import logging
 from datetime import datetime, date, timedelta
+from oauth2client.tools import argparser
 
 
 class VideoArchiver():
@@ -27,7 +28,7 @@ class VideoArchiver():
         self.logger.addHandler(hdlr)
         self.logger.setLevel(logging.INFO)
 
-        self.validextensions = [".mp4", ".mov"]
+        self.validextensions = [".mp4", ".mov", ".mp3"]
         # end editable vars #
 
     # start function definitions #
@@ -69,14 +70,15 @@ class VideoArchiver():
             srcfile = os.path.join(self.original_folder, filename)
             destfile = os.path.join(self.new_folder, filename)
             (base, ext) = os.path.splitext(srcfile)
-            self.log(0, "Checking file %s with extension %s" % (base, ext))
+            #self.log(0, "Checking file %s with extension %s" % (base, ext))
 
             if ext in self.validextensions  and os.stat(srcfile).st_mtime < move_date:
                 if not os.path.isfile(destfile):
                     size = size + (os.path.getsize(srcfile) / (1024*1024.0))
-                    #shutil.move(srcfile, destfile)
+                    filedate = time.ctime(os.stat(srcfile).st_mtime)
+                    shutil.move(srcfile, destfile)
 
-                    self.log(0,"Archived '" + filename + "', file date : %s" % time.ctime(os.stat(srcfile).st_mtime))
+                    self.log(0,"Archived '" + filename + "', file date : %s" % filedate)
                     count = count + 1
 
         self.log(0,"Archived " + str(count) + " files, totalling " + str(round(size,2)) + "MB.")
@@ -85,9 +87,23 @@ class VideoArchiver():
 if __name__ == '__main__':
 
     # Load the configuration
-    configvars = dailymotion.load_variables("video.archiver.cfg")
-    source_folder = configvars['source_folder'].rstrip()
-    destination_folder = configvars['destination_folder'].rstrip()
+    #configvars = dailymotion.load_variables("video.archiver.cfg")
+    #source_folder = configvars['source_folder'].rstrip()
+    #destination_folder = configvars['destination_folder'].rstrip()
+
+
+    argparser.add_argument("--source", required=True, help="The source folder full path")
+    argparser.add_argument("--destination", required=True, help="The destination folder full path")
+    args = argparser.parse_args()
+
+    if not os.path.exists(args.source):
+        exit("Please specify a valid source folder using the --source= parameter.")
+
+    if not os.path.exists(args.destination):
+        exit("Please specify a valid destination folder using the --destination= parameter.")
+
+    source_folder = args.source
+    destination_folder = args.destination
 
     # Start the archiver and archive files
     archiver = VideoArchiver(source_folder, destination_folder)
