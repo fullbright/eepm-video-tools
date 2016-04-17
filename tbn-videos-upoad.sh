@@ -59,8 +59,8 @@ if [ -a $configfilename ]; then
 						https://api.mailgun.net/v3/mailgun.bright-softwares.com/messages \
 						-F from='EEPB Video Automator <mailgun@mailgun.bright-softwares.com>' \
 						-F to=video@monegliseaparis.fr \
-						-F subject="Video file $videofile successfully uploaded to ftp" \
-						-F text="Hello, I have just uploaded the video $videofile to ftp and I wanted to notify you. I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
+						-F subject="Video file $videofile successfully uploaded to ftp for TBN Videos" \
+						-F text="Hello, I have just uploaded the video $videofile to ftp for TBN and I wanted to notify you. I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
 
 			else
 				echo "The response doesn't start with 2. The full code is $responsecode"
