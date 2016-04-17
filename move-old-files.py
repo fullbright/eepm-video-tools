@@ -4,23 +4,21 @@ import os
 import glob
 import shutil
 import time
-import dailymotion
+import dailymotion_upload as dailymotion
 import logging
 from datetime import datetime, date, timedelta
 
 
 class VideoArchiver():
 
-    def __init__(self):
+    def __init__(self, source_folder, destination_folder):
         # start editable vars #
         self.current_script_file = os.path.realpath(__file__)
         self.current_script_dir = os.path.abspath(os.path.join(self.current_script_file, os.pardir))
 
-        configvars = dailymotion.load_variables()
-
         self.days_old = 28               # how old the files have to be before they are moved
-        self.original_folder = "/Users/sergio/Downloads"  # folder to move files from
-        self.new_folder = "/Users/sergio/Desktop"       # folder to move files to
+        self.original_folder = source_folder #"/Users/sergio/Downloads"  # folder to move files from
+        self.new_folder = destination_folder #"/Users/sergio/Desktop"       # folder to move files to
 
         self.logfile = "%s/videos_archiving.log" % (self.current_script_dir)      # log file to record what has happened
         self.logger = logging.getLogger("cuarch")
@@ -65,10 +63,13 @@ class VideoArchiver():
         count = 0
         size = 0.0
 
+        self.log(0, "Processing the orginal %s to the destination %s" % (self.original_folder, self.new_folder))
+
         for filename in glob.glob1(self.original_folder, "*.*"):
             srcfile = os.path.join(self.original_folder, filename)
             destfile = os.path.join(self.new_folder, filename)
             (base, ext) = os.path.splitext(srcfile)
+            self.log(0, "Checking file %s with extension %s" % (base, ext))
 
             if ext in self.validextensions  and os.stat(srcfile).st_mtime < move_date:
                 if not os.path.isfile(destfile):
@@ -82,5 +83,12 @@ class VideoArchiver():
         self.end(0)
 
 if __name__ == '__main__':
-    archiver = VideoArchiver()
+
+    # Load the configuration
+    configvars = dailymotion.load_variables("video.archiver.cfg")
+    source_folder = configvars['source_folder'].rstrip()
+    destination_folder = configvars['destination_folder'].rstrip()
+
+    # Start the archiver and archive files
+    archiver = VideoArchiver(source_folder, destination_folder)
     archiver.process()
