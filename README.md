@@ -21,6 +21,10 @@ The idea is that the mac os x computer call periodically the script and upload t
 	pip install httplib2
 	pip install oauth2client
 
+To have it all installed at once, run the following command : 
+
+	pip install -r requirements.txt
+
 If something failed, try the following:
  * brew doctor
  * brew install python
@@ -29,9 +33,12 @@ If something failed, try the following:
 ### Configure FTP Uploads
 
 	TO BE DONE.
+	//TODO
 
 ### Configure Youtube upload feature
 
+	TO BE DONE.
+	//TODO
 
 #### Create an application and retrieve the API Keys and API secret
 
