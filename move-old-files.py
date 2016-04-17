@@ -4,63 +4,83 @@ import os
 import glob
 import shutil
 import time
+import dailymotion
 import logging
 from datetime import datetime, date, timedelta
 
-# start editable vars #
-current_script_file = os.path.realpath(__file__)
-current_script_dir = os.path.abspath(os.path.join(current_script_file, os.pardir))
-days_old = 28               # how old the files have to be before they are moved
-original_folder = "/Users/sergio/Downloads"  # folder to move files from
-new_folder = "/Users/sergio/Desktop"       # folder to move files to
-logfile = "%s/videos_archiving.log" % (current_script_dir)      # log file to record what has happened
-# end editable vars #
 
-# start function definitions #
-def log(level,msg,tofile=True):
-    print msg
+class VideoArchiver():
 
-    if tofile == True:
-        if level == 0:
-            logger.info(msg)
-        else:
-            logger.error(msg)
+    def __init__(self):
+        # start editable vars #
+        self.current_script_file = os.path.realpath(__file__)
+        self.current_script_dir = os.path.abspath(os.path.join(self.current_script_file, os.pardir))
 
-def end(code):
-    log(0,"End.")
-    log(0,"-------------------------")
+        configvars = dailymotion.load_variables()
 
-    sys.exit(code)
-# end function definitions #
+        self.days_old = 28               # how old the files have to be before they are moved
+        self.original_folder = "/Users/sergio/Downloads"  # folder to move files from
+        self.new_folder = "/Users/sergio/Desktop"       # folder to move files to
 
+        self.logfile = "%s/videos_archiving.log" % (self.current_script_dir)      # log file to record what has happened
+        self.logger = logging.getLogger("cuarch")
+        hdlr = logging.FileHandler(self.logfile)
+        hdlr.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s: %(message)s'))
+        self.logger.addHandler(hdlr)
+        self.logger.setLevel(logging.INFO)
 
-# start process #
+        self.validextensions = [".mp4", ".mov"]
+        # end editable vars #
 
-move_date = date.today() - timedelta(days=days_old)
-move_date = time.mktime(move_date.timetuple())
-logger = logging.getLogger("cuarch")
-hdlr = logging.FileHandler(logfile)
-hdlr.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s: %(message)s'))
-logger.addHandler(hdlr)
-logger.setLevel(logging.INFO)
+    # start function definitions #
+    def log(self,level,msg,tofile=True):
+        print msg
 
-log(0,"Initialising...")
+        if tofile == True:
+            if level == 0:
+                self.logger.info(msg)
+            else:
+                self.logger.error(msg)
 
-count = 0
-size = 0.0
+    def end(self,code):
+        self.log(0,"End.")
+        self.log(0,"-------------------------")
+        #sys.exit(code)
 
-for filename in glob.glob1(original_folder, "*.*"):
-    srcfile = os.path.join(original_folder, filename)
-    destfile = os.path.join(new_folder, filename)
-    if os.stat(srcfile).st_mtime < move_date:
-        if not os.path.isfile(destfile):
-            size = size + (os.path.getsize(srcfile) / (1024*1024.0))
-            #shutil.move(srcfile, destfile)
-
-            log(0,"Archived '" + filename + "', file date : %s" % time.ctime(os.stat(srcfile).st_mtime))
-            count = count + 1
-
-log(0,"Archived " + str(count) + " files, totalling " + str(round(size,2)) + "MB.")
-end(0)
+    # end function definitions #
 
 
+    # start process #
+    def process(self):
+        move_date = date.today() - timedelta(days=self.days_old)
+        move_date = time.mktime(move_date.timetuple())
+        #logger = logging.getLogger("cuarch")
+        #hdlr = logging.FileHandler(logfile)
+        #hdlr.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s: %(message)s'))
+        #logger.addHandler(hdlr)
+        #logger.setLevel(logging.INFO)
+
+        self.log(0,"Initialising...")
+
+        count = 0
+        size = 0.0
+
+        for filename in glob.glob1(self.original_folder, "*.*"):
+            srcfile = os.path.join(self.original_folder, filename)
+            destfile = os.path.join(self.new_folder, filename)
+            (base, ext) = os.path.splitext(srcfile)
+
+            if ext in self.validextensions  and os.stat(srcfile).st_mtime < move_date:
+                if not os.path.isfile(destfile):
+                    size = size + (os.path.getsize(srcfile) / (1024*1024.0))
+                    #shutil.move(srcfile, destfile)
+
+                    self.log(0,"Archived '" + filename + "', file date : %s" % time.ctime(os.stat(srcfile).st_mtime))
+                    count = count + 1
+
+        self.log(0,"Archived " + str(count) + " files, totalling " + str(round(size,2)) + "MB.")
+        self.end(0)
+
+if __name__ == '__main__':
+    archiver = VideoArchiver()
+    archiver.process()
