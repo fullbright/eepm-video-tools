@@ -79,7 +79,15 @@ if [ -a $configfilename ]; then
 
 	#exit
 
-	#
+	# Doing some housekeeping for Youtube
+    archive_result=$(/usr/local/bin/python move-old-files.py $archive_source $archive_destinationi)
+	curl -s --user 'api:key-44faoj5x2z0nbxz3r08todivhnh17261' \
+						https://api.mailgun.net/v3/mailgun.bright-softwares.com/messages \
+						-F from='EEPB Video Automator <mailgun@mailgun.bright-softwares.com>' \
+						-F to=video@monegliseaparis.fr \
+						-F subject="Housekeeping done for Youtube" \
+						-F text="Hello, I have just moved some files to the archive and I wanted to tell you. Here is some info about that : $archive_result. I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
+
 
 
 else
