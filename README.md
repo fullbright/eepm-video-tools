@@ -95,3 +95,17 @@ Fill the vimeo.uploader.cfg with the collected information from the application 
 # Usage
 
 If you want to upload automatically another set of files, edit directly the script.
+
+
+# Improvements
+
+Code improvements
+
+ - [ ] Better logging. Logrotate the logs
+ - [ ] Merge all the configuration files in one
+ - [ ] Change the configuration file format to json or yaml, python should be able to read it
+ - [ ] A mailing class/function to handle all the emailing, logs to attach, text formating
+ - [ ] A main script that handles the move to the directpry where the scripts and logs are located
+ - [ ] A main script with command line options to trigger tasks directly.
+ - [ ] Write a file renamer function to automatically rename emci files before uploading them. Read the name from a remote database
+ - [ ] 
