@@ -4,3 +4,4 @@ ftp.uploader.cfg
 archives/
 *.mp4
 *.mov
+*.pyc
