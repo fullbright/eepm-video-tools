@@ -97,7 +97,7 @@ def send_email(sender, recipients, subject, htmlmessage):
     """
 
     attachments = {}
-    filesToAttach = ["/var/log/myjob.youtubeupload.log", "/var/log/myjob.ftpupload.log", "/var/log/myjob.emciupload.log"]
+    filesToAttach = ["/var/log/myjob.eepm_video_processor.log", "/var/log/myjob.youtubeupload.log", "/var/log/myjob.ftpupload.log", "/var/log/myjob.emciupload.log"]
     index = 0
     for fileToAttach in filesToAttach:
         if(os.path.exists(fileToAttach)):
