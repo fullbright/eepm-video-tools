@@ -10,17 +10,16 @@ from datetime import datetime, date, timedelta
 from oauth2client.tools import argparser
 
 
-class VideoArchiver():
+class VideoRenamer():
 
-    def __init__(self, source_folder, destination_folder):
+    def __init__(self, source_folder):
         # start editable vars #
         self.current_script_file = os.path.realpath(__file__)
         self.current_script_dir = os.path.abspath(os.path.join(self.current_script_file, os.pardir))
 
         self.days_old = 28               # how old the files have to be before they are moved
         self.original_folder = source_folder #"/Users/sergio/Downloads"  # folder to move files from
-        self.new_folder = destination_folder #"/Users/sergio/Desktop"       # folder to move files to
-        self.logger = logging.getLogger("eepm_video_processor.VideoArchiver")
+        self.logger = logging.getLogger("eepm_video_processor.VideoRenamer")
 
         self.validextensions = [".mp4", ".mov", ".mp3"]
         # end editable vars #
@@ -45,8 +44,8 @@ class VideoArchiver():
 
     # start process #
     def process(self):
-        move_date = date.today() - timedelta(days=self.days_old)
-        move_date = time.mktime(move_date.timetuple())
+        #move_date = date.today() - timedelta(days=self.days_old)
+        #move_date = time.mktime(move_date.timetuple())
         #logger = logging.getLogger("cuarch")
         #hdlr = logging.FileHandler(logfile)
         #hdlr.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s: %(message)s'))
@@ -58,15 +57,17 @@ class VideoArchiver():
         count = 0
         size = 0.0
 
-        self.log(0, "Processing the orginal %s to the destination %s" % (self.original_folder, self.new_folder))
+        self.log(0, "Processing the orginal %s" % (self.original_folder))
 
         for filename in glob.glob1(self.original_folder, "*.*"):
             srcfile = os.path.join(self.original_folder, filename)
-            destfile = os.path.join(self.new_folder, filename)
-            (base, ext) = os.path.splitext(srcfile)
+
+            newfilename = ""
+            destfile = os.path.join(self.original_folder, newfilename)
+            #(base, ext) = os.path.splitext(srcfile)
             #self.log(0, "Checking file %s with extension %s" % (base, ext))
 
-            if ext in self.validextensions  and os.stat(srcfile).st_mtime < move_date:
+            if ext in self.validextensions:
                 if not os.path.isfile(destfile):
                     size = size + (os.path.getsize(srcfile) / (1024*1024.0))
                     filedate = time.ctime(os.stat(srcfile).st_mtime)
@@ -74,6 +75,8 @@ class VideoArchiver():
 
                     self.log(0,"Archived '" + filename + "', file date : %s" % filedate)
                     count = count + 1
+                else:
+                    self.logger.debug("There is already another file named %s" % destfile)
 
         self.log(0,"Archived " + str(count) + " files, totalling " + str(round(size,2)) + "MB.")
         self.end(0)
