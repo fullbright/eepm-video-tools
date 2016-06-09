@@ -6,9 +6,13 @@ import shutil
 import time
 import dailymotion_upload as dailymotion
 import logging
+import gspread
+
+from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime, date, timedelta
 from oauth2client.tools import argparser
 
+scope = ['https://spreadsheets.google.com/feeds']
 
 class VideoRenamer():
 
@@ -23,6 +27,11 @@ class VideoRenamer():
 
         self.validextensions = [".mp4", ".mov", ".mp3"]
         # end editable vars #
+
+    def authenticate():
+        credentials = ServiceAccountCredentials.from_json_keyfile_name('client-secrets-oauth2.json', scope)
+        gc = gspread.authorize(credentials)
+        wks = gc.open("Where is the money Lebowski?").sheet1
 
     # start function definitions #
     def log(self,level,msg,tofile=True):
@@ -107,9 +116,9 @@ if __name__ == '__main__':
     archiver.process()
 
     # Send an email to say that we have done the housekeeping
-    dailymotion.send_email("EEPB Video Automator <mailgun@mailgun.bright-softwares.com>", 
-        "video@monegliseaparis.fr", 
-        "Housekeeping done for Youtube", 
+    dailymotion.send_email("EEPB Video Automator <mailgun@mailgun.bright-softwares.com>",
+        "video@monegliseaparis.fr",
+        "Housekeeping done for Youtube",
         "Hello, I have just moved some files to the archive and I wanted to tell you. Here is some info about that : $archive_result. I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
     )
 
