@@ -26,7 +26,7 @@ logger.setLevel(logging.DEBUG)
 current_script_file = os.path.realpath(__file__)
 current_script_dir = os.path.abspath(os.path.join(current_script_file, os.pardir))
 fh = logging.handlers.RotatingFileHandler(
-              "%s/eepm_video_processor.log" % (current_script_dir), 
+              "%s/eepm_videos_processor.log" % (current_script_dir), 
               maxBytes=20000, backupCount=5)
 #logging.FileHandler("%s/eepm_video_processor.log" % (current_script_dir))
 fh.setLevel(logging.DEBUG)
