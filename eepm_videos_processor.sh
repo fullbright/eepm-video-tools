@@ -19,6 +19,7 @@ lockfilename=eepb-video-processor-lockfile.lock
 
 echo Checking if we must update the current code from github
 
+git remote update
 LOCAL=$(git rev-parse @)
 REMOTE=$(git rev-parse @{u})
 BASE=$(git merge-base @ @{u})
