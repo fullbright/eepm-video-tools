@@ -17,6 +17,24 @@ echo Current directory is $(pwd)
 
 lockfilename=eepb-video-processor-lockfile.lock
 
+echo Checking if we must update the current code from github
+
+LOCAL=$(git rev-parse @)
+REMOTE=$(git rev-parse @{u})
+BASE=$(git merge-base @ @{u})
+
+if [ $LOCAL = $REMOTE ]; then
+    echo "Up-to-date"
+elif [ $LOCAL = $BASE ]; then
+    echo "Need to pull. Pulling ..."
+    git pull --rebase
+    echo "Done."
+elif [ $REMOTE = $BASE ]; then
+    echo "Need to push"
+else
+    echo "Diverged"
+fi
+
 
 echo Checking the lock file ...
 if [ -a $lockfilename ]; then
