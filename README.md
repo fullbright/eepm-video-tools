@@ -20,6 +20,7 @@ The idea is that the mac os x computer call periodically the script and upload t
 	pip install dailymotion
 	pip install httplib2
 	pip install oauth2client
+	pip install gspread
 
 To have it all installed at once, run the following command : 
 
