@@ -325,7 +325,7 @@ def main():
     print "Uploading video ", nextfiletoprocess_path
 
 
-    result = upload(uploadurl, nextfiletoprocess_path, cookiefile)
+#x    result = upload(uploadurl, nextfiletoprocess_path, cookiefile)
 
     print "Here is the result of the upload : ", result
 
