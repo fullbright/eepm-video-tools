@@ -301,11 +301,11 @@ def main():
 
     # prevent double upload with a lock file
     dailymotion_upload.check_lock_file(lockfilename)
-    
-    # pick the first video and upload it    
+
+    # pick the first video and upload it
     print "Processing the source path" , sourcepath
     nextfiletoprocess = ""
-    for name in os.listdir(sourcepath):    
+    for name in os.listdir(sourcepath):
         (base, ext) = os.path.splitext(name)
         if ext in validextensions:
             print " === Got the one to process : ", os.path.join(sourcepath, name)
@@ -321,7 +321,7 @@ def main():
 
     # Make sure we are authenticated.
     authenticate()
-    
+
     print "Uploading video ", nextfiletoprocess_path
 
 

@@ -20,13 +20,7 @@ class VideoArchiver():
         self.days_old = 28               # how old the files have to be before they are moved
         self.original_folder = source_folder #"/Users/sergio/Downloads"  # folder to move files from
         self.new_folder = destination_folder #"/Users/sergio/Desktop"       # folder to move files to
-
-        self.logfile = "%s/videos_archiving.log" % (self.current_script_dir)      # log file to record what has happened
-        self.logger = logging.getLogger("cuarch")
-        hdlr = logging.FileHandler(self.logfile)
-        hdlr.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s: %(message)s'))
-        self.logger.addHandler(hdlr)
-        self.logger.setLevel(logging.INFO)
+        self.logger = logging.getLogger("eepm_video_processor.VideoArchiver")
 
         self.validextensions = [".mp4", ".mov", ".mp3"]
         # end editable vars #
@@ -108,3 +102,21 @@ if __name__ == '__main__':
     # Start the archiver and archive files
     archiver = VideoArchiver(source_folder, destination_folder)
     archiver.process()
+
+    # Send an email to say that we have done the housekeeping
+    dailymotion.send_email("EEPB Video Automator <mailgun@mailgun.bright-softwares.com>", 
+        "video@monegliseaparis.fr", 
+        "Housekeeping done for Youtube", 
+        "Hello, I have just moved some files to the archive and I wanted to tell you. Here is some info about that : $archive_result. I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
+    )
+
+
+
+
+
+
+
+
+
+
+

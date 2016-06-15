@@ -3,6 +3,9 @@
 import dailymotion
 import os
 import json
+import requests
+
+MAILGUN_APIKEY = 'key-44faoj5x2z0nbxz3r08todivhnh17261'
 
 # load the variables
 
@@ -87,6 +90,37 @@ def write_lock_file(lockfilename):
 def removelockfile(lockfilename):
     print "Removing lock file "
     os.remove(lockfilename)
+
+def send_email(sender, recipients, subject, htmlmessage):
+    """
+        Sends an email using mailgun
+    """
+
+    attachments = {}
+    filesToAttach = ["/var/log/myjob.eepm_video_processor.log", "/var/log/myjob.youtubeupload.log", "/var/log/myjob.ftpupload.log", "/var/log/myjob.emciupload.log"]
+    index = 0
+    for fileToAttach in filesToAttach:
+        if(os.path.exists(fileToAttach)):
+            filename = os.path.basename(fileToAttach)
+            attachmentindex = "attachment[%d]" % (index)
+            attachments[attachmentindex] = (filename + ".txt", open(fileToAttach, 'rb'))
+            #attachments[attachmentindex] = ("myjob.youtubeupload.log" + ".txt", open("/var/log/myjob.youtubeupload.log", 'rb'))
+            index = index + 1
+
+    request_url = 'https://api.mailgun.net/v3/mailgun.bright-softwares.com/messages'
+    request = requests.post(request_url, 
+                            auth=('api', MAILGUN_APIKEY),
+                            files=attachments, 
+                            data={
+                                'from': sender,
+                                'to': recipients,
+                                'subject': subject,
+                                'html': htmlmessage
+                            })
+
+    print 'Status: {0}'.format(request.status_code)
+    print 'Body:   {0}'.format(request.text)
+
 
 def main():
 

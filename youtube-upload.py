@@ -6,6 +6,10 @@ import os
 import random
 import sys
 import time
+import logging
+import logging.handlers
+import glob
+import shutil
 
 from apiclient.discovery import build
 from apiclient.errors import HttpError
@@ -13,6 +17,22 @@ from apiclient.http import MediaFileUpload
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.file import Storage
 from oauth2client.tools import argparser, run_flow
+import dailymotion_upload as dailymotion
+
+
+## Setup logging
+logger = logging.getLogger('eepm_video_processor')
+logger.setLevel(logging.DEBUG)
+current_script_file = os.path.realpath(__file__)
+current_script_dir = os.path.abspath(os.path.join(current_script_file, os.pardir))
+fh = logging.handlers.RotatingFileHandler(
+              "%s/eepm_videos_processor.log" % (current_script_dir), 
+              maxBytes=20000, backupCount=5)
+#logging.FileHandler("%s/eepm_video_processor.log" % (current_script_dir))
+fh.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
 
 # Explicitly tell the underlying HTTP transport library not to retry, since
@@ -20,7 +40,7 @@ from oauth2client.tools import argparser, run_flow
 httplib2.RETRIES = 1
 
 # Maximum number of times to retry before giving up.
-MAX_RETRIES = 10
+MAX_RETRIES = 50
 
 # Always retry when these exceptions are raised.
 RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
@@ -132,11 +152,17 @@ def resumable_upload(insert_request):
   while response is None:
     try:
       print "Uploading file..."
+      logger.info("Uploading file...")
       status, response = insert_request.next_chunk()
+
       if 'id' in response:
         print "Video id '%s' was successfully uploaded." % response['id']
+        logger.debug("Video id '%s' was successfully uploaded." % response['id'])
       else:
-        exit("The upload failed with an unexpected response: %s" % response)
+        logger.error("The upload failed with an unexpected response: %s" % response)
+        logger.debug("The upload failed with an unexpected response: %s" % response)
+        return False
+
     except HttpError, e:
       if e.resp.status in RETRIABLE_STATUS_CODES:
         error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status,
@@ -148,34 +174,72 @@ def resumable_upload(insert_request):
 
     if error is not None:
       print error
+      logger.debug(error)
       retry += 1
+
       if retry > MAX_RETRIES:
-        exit("No longer attempting to retry.")
+        logger.error("No longer attempting to retry.")
+        return False
 
       max_sleep = 2 ** retry
       sleep_seconds = random.random() * max_sleep
       print "Sleeping %f seconds and then retrying..." % sleep_seconds
+      logger.debug("Sleeping %f seconds and then retrying..." % sleep_seconds)
       time.sleep(sleep_seconds)
 
+  logger.debug("Upload was successful")
+  return True
+
+def main():
+
+  validextensions = [".mp4", ".mov", ".mp3"]
+  configvars = dailymotion.load_variables("eepm_video_processor.cfg")
+  sourcepath = configvars['sourcepath'].rstrip()
+  destination = configvars['destination'].rstrip()
+
+  for filename in glob.glob1(sourcepath, "*.*"):
+    (base, ext) = os.path.splitext(filename)
+    logger.debug("Checking file %s with extension %s" % (base, ext))
+    
+    if ext in validextensions:
+      srcfile = os.path.join(sourcepath, filename)
+
+      videotitle = base
+      videodescription = "Automatically uploaded %s in private mode." % videotitle
+      videokeywords = "Eglise Paris Metropole, Eglise Paris Bastille"
+      videocategory = 22
+      videoprivacyStatus = "private"
+
+      args=dict(
+        file=srcfile,
+        title=videotitle,
+        description=videodescription,
+        category=videocategory,
+        privacyStatus=videoprivacyStatus,
+        keywords=videokeywords
+      )
+
+      logger.debug("Getting authenticated service...")
+      youtube = get_authenticated_service(args)
+      logger.debug("Done.")
+
+      try:
+        logger.debug("Initializing upload ...")
+        initialize_upload(youtube, args)
+
+        dailymotion.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
+            "video@monegliseaparis.fr",
+            "Video file $videofile successfully uploaded to Youtube",
+            "Hello, I have just uploaded the video $videofile to Youtube and I wanted to notify you. I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
+            )
+      except HttpError, e:
+        print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
+        logger.debug("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
+
+
+    else:
+      logger.debug("The file %s 's extension is not part of the valid extensions." % filename)
+
+
 if __name__ == '__main__':
-  argparser.add_argument("--file", required=True, help="Video file to upload")
-  argparser.add_argument("--title", help="Video title", default="Test Title")
-  argparser.add_argument("--description", help="Video description",
-    default="Test Description")
-  argparser.add_argument("--category", default="22",
-    help="Numeric video category. " +
-      "See https://developers.google.com/youtube/v3/docs/videoCategories/list")
-  argparser.add_argument("--keywords", help="Video keywords, comma separated",
-    default="")
-  argparser.add_argument("--privacyStatus", choices=VALID_PRIVACY_STATUSES,
-    default=VALID_PRIVACY_STATUSES[0], help="Video privacy status.")
-  args = argparser.parse_args()
-
-  if not os.path.exists(args.file):
-    exit("Please specify a valid file using the --file= parameter.")
-
-  youtube = get_authenticated_service(args)
-  try:
-    initialize_upload(youtube, args)
-  except HttpError, e:
-    print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
+  main()

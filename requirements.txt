@@ -9,3 +9,4 @@ httplib2
 oauth2client
 poster
 pycurl
+gspread
