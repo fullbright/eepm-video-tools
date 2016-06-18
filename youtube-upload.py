@@ -192,54 +192,63 @@ def resumable_upload(insert_request):
 
 def main():
 
-  validextensions = [".mp4", ".mov", ".mp3"]
-  configvars = dailymotion.load_variables("eepm_video_processor.cfg")
-  sourcepath = configvars['sourcepath'].rstrip()
-  destination = configvars['destination'].rstrip()
+  errormessage = ""
 
-  for filename in glob.glob1(sourcepath, "*.*"):
-    (base, ext) = os.path.splitext(filename)
-    logger.debug("Checking file %s with extension %s" % (base, ext))
-    
-    if ext in validextensions:
-      srcfile = os.path.join(sourcepath, filename)
+  try:
+    validextensions = [".mp4", ".mov", ".mp3"]
+    configvars = dailymotion.load_variables("eepm_video_processor.cfg")
+    sourcepath = configvars['sourcepath'].rstrip()
+    destination = configvars['destination'].rstrip()
 
-      videotitle = base
-      videodescription = "Automatically uploaded %s in private mode." % videotitle
-      videokeywords = "Eglise Paris Metropole, Eglise Paris Bastille"
-      videocategory = 22
-      videoprivacyStatus = "private"
+    for filename in glob.glob1(sourcepath, "*.*"):
+      (base, ext) = os.path.splitext(filename)
+      logger.debug("Checking file %s with extension %s" % (base, ext))
+      
+      if ext in validextensions:
+        srcfile = os.path.join(sourcepath, filename)
 
-      args=dict(
-        file=srcfile,
-        title=videotitle,
-        description=videodescription,
-        category=videocategory,
-        privacyStatus=videoprivacyStatus,
-        keywords=videokeywords
-      )
+        videotitle = base
+        videodescription = "Automatically uploaded %s in private mode." % videotitle
+        videokeywords = "Eglise Paris Metropole, Eglise Paris Bastille"
+        videocategory = 22
+        videoprivacyStatus = "private"
 
-      logger.debug("Getting authenticated service...")
-      youtube = get_authenticated_service(args)
-      logger.debug("Done.")
+        args=dict(
+          file=srcfile,
+          title=videotitle,
+          description=videodescription,
+          category=videocategory,
+          privacyStatus=videoprivacyStatus,
+          keywords=videokeywords
+        )
 
-      try:
-        logger.debug("Initializing upload ...")
-        initialize_upload(youtube, args)
+        logger.debug("Getting authenticated service...")
+        youtube = get_authenticated_service(args)
+        logger.debug("Done.")
 
-        dailymotion.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
-            "video@monegliseaparis.fr",
-            "Video file $videofile successfully uploaded to Youtube",
-            "Hello, I have just uploaded the video $videofile to Youtube and I wanted to notify you. I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
-            )
-      except HttpError, e:
-        print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
-        logger.debug("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
+        try:
+          logger.debug("Initializing upload ...")
+          initialize_upload(youtube, args)
 
+        except HttpError, e:
+          errormessage = errormessage + " -> " + e.content
+          print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
+          logger.debug("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
 
-    else:
-      logger.debug("The file %s 's extension is not part of the valid extensions." % filename)
+      else:
+        logger.debug("The file %s 's extension is not part of the valid extensions." % filename)
 
+  except:
+    errormessage = errormessage + " -> " + sys.exc_info()[0]
+    logger.debug("Something bad happned. The error is ", sys.exc_info()[0], ". Thats all we know")
+
+  finally:
+
+    dailymotion.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
+        "video@monegliseaparis.fr",
+        "Video file $videofile successfully uploaded to Youtube",
+        "Hello, I have just uploaded the video $videofile to Youtube and I wanted to notify you. Here are the possible errors : " + errormessage + " I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
+        )
 
 if __name__ == '__main__':
   main()
