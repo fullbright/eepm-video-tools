@@ -80,35 +80,49 @@ class VideoArchiver():
 
 if __name__ == '__main__':
 
-    # Load the configuration
-    #configvars = dailymotion.load_variables("video.archiver.cfg")
-    #source_folder = configvars['source_folder'].rstrip()
-    #destination_folder = configvars['destination_folder'].rstrip()
+    errormessage = ""
+
+    try:
+        # Load the configuration
+        #configvars = dailymotion.load_variables("video.archiver.cfg")
+        #source_folder = configvars['source_folder'].rstrip()
+        #destination_folder = configvars['destination_folder'].rstrip()
 
 
-    argparser.add_argument("--source", required=True, help="The source folder full path")
-    argparser.add_argument("--destination", required=True, help="The destination folder full path")
-    args = argparser.parse_args()
+        argparser.add_argument("--source", required=True, help="The source folder full path")
+        argparser.add_argument("--destination", required=True, help="The destination folder full path")
+        args = argparser.parse_args()
 
-    if not os.path.exists(args.source):
-        exit("Please specify a valid source folder using the --source= parameter.")
+        if not os.path.exists(args.source):
+            exit("Please specify a valid source folder using the --source= parameter.")
 
-    if not os.path.exists(args.destination):
-        exit("Please specify a valid destination folder using the --destination= parameter.")
+        if not os.path.exists(args.destination):
+            exit("Please specify a valid destination folder using the --destination= parameter.")
 
-    source_folder = args.source
-    destination_folder = args.destination
+        source_folder = args.source
+        destination_folder = args.destination
 
-    # Start the archiver and archive files
-    archiver = VideoArchiver(source_folder, destination_folder)
-    archiver.process()
+        # Start the archiver and archive files
+        archiver = VideoArchiver(source_folder, destination_folder)
+        archiver.process()
 
-    # Send an email to say that we have done the housekeeping
-    dailymotion.send_email("EEPB Video Automator <mailgun@mailgun.bright-softwares.com>", 
-        "video@monegliseaparis.fr", 
-        "Housekeeping done for Youtube", 
-        "Hello, I have just moved some files to the archive and I wanted to tell you. Here is some info about that : $archive_result. I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
-    )
+        # Send an email to say that we have done the housekeeping
+        dailymotion.send_email("EEPB Video Automator <mailgun@mailgun.bright-softwares.com>", 
+            "video@monegliseaparis.fr", 
+            "Housekeeping done for Youtube", 
+            "Hello, I have just moved some files to the archive and I wanted to tell you. Here is some info about that : $archive_result. I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
+        )
+    except:
+        errormessage = errormessage + " -> " + sys.exc_info()[0]
+        logger.debug("Something bad happned. The error is ", sys.exc_info()[0], ". Thats all we know")
+
+    finally:
+
+    dailymotion.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
+        "video@monegliseaparis.fr",
+        "Video file $videofile successfully uploaded to Youtube",
+        "Hello, I have just uploaded the video $videofile to Youtube and I wanted to notify you. Here are the possible errors : " + errormessage + " I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
+        )
 
 
 
