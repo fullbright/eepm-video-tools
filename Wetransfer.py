@@ -152,34 +152,48 @@ def uploadDir(top, transferId, recursive):
             uploadFile(transferId, os.path.abspath(os.path.join(root, name)))
 
 def main(argv):
-    parser = argparse.ArgumentParser(description='Uploads files or folders to WeTransfer.')
-    parser.add_argument('-r', '--receiver', help='emails of the receivers', nargs='*')
-    parser.add_argument('-s', '--sender', help='email of the sender', default="myEmail@myDomain.com")
-    parser.add_argument('-m', '--message', help='message to send')
-    parser.add_argument('-R', '--recursive', help='recursive send', action='store_true')
-    parser.add_argument('files', help='files or directory to send', nargs='+')
-    
-    args = parser.parse_args();
-    mimetypes.init()
+    errormessage = ""
 
     try:
-        transferId = getTransferId(args.sender, args.receiver, args.message)
-    
-        for it in args.files:
-            if os.path.isfile(it):
-                print("Upload file : " + it)
-                uploadFile(transferId, it)
-            elif os.path.isdir(it):
-                uploadDir(it, transferId, args.recursive)
-            else:
-                print("Not a file/directory : " + it)
-                
+        parser = argparse.ArgumentParser(description='Uploads files or folders to WeTransfer.')
+        parser.add_argument('-r', '--receiver', help='emails of the receivers', nargs='*')
+        parser.add_argument('-s', '--sender', help='email of the sender', default="myEmail@myDomain.com")
+        parser.add_argument('-m', '--message', help='message to send')
+        parser.add_argument('-R', '--recursive', help='recursive send', action='store_true')
+        parser.add_argument('files', help='files or directory to send', nargs='+')
         
-        finalizeTransfer(transferId)
-    except KeyboardInterrupt:
-        print ""
-        if transferId:
-            cancelTransfer(transferId)
+        args = parser.parse_args();
+        mimetypes.init()
+
+        try:
+            transferId = getTransferId(args.sender, args.receiver, args.message)
+        
+            for it in args.files:
+                if os.path.isfile(it):
+                    print("Upload file : " + it)
+                    uploadFile(transferId, it)
+                elif os.path.isdir(it):
+                    uploadDir(it, transferId, args.recursive)
+                else:
+                    print("Not a file/directory : " + it)
+                    
+            
+            finalizeTransfer(transferId)
+        except KeyboardInterrupt:
+            print ""
+            if transferId:
+                cancelTransfer(transferId)
+    except:
+        errormessage = errormessage + " -> " + sys.exc_info()[0]
+        logger.debug("Something bad happned. The error is ", sys.exc_info()[0], ". Thats all we know")
+
+    finally:
+
+        dailymotion.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
+            "video@monegliseaparis.fr",
+            "Video file $videofile successfully uploaded to wetranfer",
+            "Hello, I have just uploaded the video $videofile to Youtube and I wanted to notify you. Here are the possible errors : " + errormessage + " I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
+            )
 
 if __name__ == "__main__":
     main(sys.argv[1:])
