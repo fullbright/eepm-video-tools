@@ -55,15 +55,27 @@ else
 
 	## Step 1 -  Launch the youtube uploader
 	youtube_result=$(/usr/local/bin/python youtube-upload.py)
+	echo "Youtube result = $youtube_result"
 
 	## Step 2 - Launch the dailymotion uploader + vimeo
+	vimeo_result=$(/usr/local/bin/python vimeo-upload.py)
+	echo "Vimeo result = $vimeo_result" 
 
+	## Step 2 - Launch the dailymotion uploader + vimeo
+	dailymotion_result=$(/usr/local/bin/python dailymotion_upload.py)
+	echo "Dailymotion result = $dailymotion_result"    
 
 	## Step 3 - Launch the ftp upload for tbn and the others
+	ftp_result=$(tbn-videos-upoad.sh)
+	echo "FTP result = $ftp_result"
 
+	## Step 4 - Launch the emci upload for enseignemoi and emcitv
+	wetransfer_result=$(/usr/local/bin/python Wetransfer.py)
+	echo "Youtube result = $wetransfer_result"
 
 	## Step 4 - Do some housekeeping
-
+	housekeeping_result=$(/usr/local/bin/python VideoArchiver.py)
+	echo "House keeping result = $housekeeping_result"
 
 	echo "Anyways, let's delete the lock file to be able to execute the script again ... on the next call"
 	echo Removing the lock file
