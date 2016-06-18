@@ -120,7 +120,7 @@ if __name__ == '__main__':
 
     dailymotion.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
         "video@monegliseaparis.fr",
-        "Video file $videofile successfully uploaded to Youtube",
+        "Video archiver : videos processing report",
         "Hello, I have just uploaded the video $videofile to Youtube and I wanted to notify you. Here are the possible errors : " + errormessage + " I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
         )
 

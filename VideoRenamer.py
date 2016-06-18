@@ -145,33 +145,47 @@ def get_credentials():
     return credentials
 
 def main():
-    """Shows basic usage of the Sheets API.
+    
+    errormessage = ""
 
-    Creates a Sheets API service object and prints the names and majors of
-    students in a sample spreadsheet:
-    https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
-    """
-    credentials = get_credentials()
-    http = credentials.authorize(httplib2.Http())
-    discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
-                    'version=v4')
-    service = discovery.build('sheets', 'v4', http=http,
-                              discoveryServiceUrl=discoveryUrl)
+    try:
+        """Shows basic usage of the Sheets API.
 
-    spreadsheetId = '1ENlHxOp-Ue-h5p1EHpVkzEsFYp21acgPL2oWYcS-IL0'
-    rangeName = 'SUIVI EXPORT 2016!A2:AB'
-    result = service.spreadsheets().values().get(
-        spreadsheetId=spreadsheetId, range=rangeName).execute()
-    values = result.get('values', [])
+        Creates a Sheets API service object and prints the names and majors of
+        students in a sample spreadsheet:
+        https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
+        """
+        credentials = get_credentials()
+        http = credentials.authorize(httplib2.Http())
+        discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
+                        'version=v4')
+        service = discovery.build('sheets', 'v4', http=http,
+                                  discoveryServiceUrl=discoveryUrl)
 
-    if not values:
-        print('No data found.')
-    else:
-        print('Name, Major:')
-        for row in values:
-            # Print columns A and E, which correspond to indices 0 and 4.
-            print('%s, %s, %s, %s' % (row[0], row[1], row[2], row[3]))
+        spreadsheetId = '1ENlHxOp-Ue-h5p1EHpVkzEsFYp21acgPL2oWYcS-IL0'
+        rangeName = 'SUIVI EXPORT 2016!A2:AB'
+        result = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheetId, range=rangeName).execute()
+        values = result.get('values', [])
 
+        if not values:
+            print('No data found.')
+        else:
+            print('Name, Major:')
+            for row in values:
+                # Print columns A and E, which correspond to indices 0 and 4.
+                print('%s, %s, %s, %s' % (row[0], row[1], row[2], row[3]))
+    except:
+        errormessage = errormessage + " -> " + sys.exc_info()[0]
+        logger.debug("Something bad happned. The error is ", sys.exc_info()[0], ". Thats all we know")
+
+    finally:
+
+        dailymotion.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
+            "video@monegliseaparis.fr",
+            "Video renamer : videos processing report",
+            "Hello, I have just uploaded the video $videofile to Youtube and I wanted to notify you. Here are the possible errors : " + errormessage + " I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
+            )
 
 if __name__ == '__main__':
     main()
