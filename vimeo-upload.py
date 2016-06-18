@@ -31,75 +31,90 @@ def set_video_title(access_token, video_uri, title, description, privacy):
     return requests.patch("https://api.vimeo.com" + video_uri, data=payload, headers=auth_headers)
 
 def main():
-    print "-------  Starting Vimeo upload --------"
-    validextensions = [".mp4", ".mov"]
-    configvars = dailymotion_upload.load_variables("vimeo.uploader.cfg")
 
-    API_KEY = configvars['vimeokey'].rstrip()
-    API_SECRET = configvars['vimeosecretkey'].rstrip()
-    API_TOCKEN = configvars['vimeoaccesstoken'].rstrip()
-    lockfilename = configvars['lockfilename'].rstrip()
-    tokenfilename = configvars['tokenfilename'].rstrip()
-    sourcepath = configvars['sourcepath'].rstrip()
+    errormessage = ""
 
-    # prevent double upload with a lock file
-    dailymotion_upload.check_lock_file(lockfilename)
-    
-    # pick the first video and upload it    
-    print "Processing the source path" , sourcepath
-    nextfiletoprocess = ""
-    for name in os.listdir(sourcepath):    
-        (base, ext) = os.path.splitext(name)
-        if ext in validextensions:
-            print " === Got the one to process : ", os.path.join(sourcepath, name)
-            nextfiletoprocess_name = name
-            nextfiletoprocess_path = os.path.join(sourcepath, name)
+    try:
+        print "-------  Starting Vimeo upload --------"
+        validextensions = [".mp4", ".mov"]
+        configvars = dailymotion_upload.load_variables("vimeo.uploader.cfg")
 
-            print "Break out of the loop"
-            break
+        API_KEY = configvars['vimeokey'].rstrip()
+        API_SECRET = configvars['vimeosecretkey'].rstrip()
+        API_TOCKEN = configvars['vimeoaccesstoken'].rstrip()
+        lockfilename = configvars['lockfilename'].rstrip()
+        tokenfilename = configvars['tokenfilename'].rstrip()
+        sourcepath = configvars['sourcepath'].rstrip()
 
-    # Got our file, then upload it
-    nextfiletoprocess_title = "%s auto uploaded" % nextfiletoprocess_name
-    nextfiletoprocess_description = "%s auto described. A real description must go here." % nextfiletoprocess_name
+        # prevent double upload with a lock file
+        dailymotion_upload.check_lock_file(lockfilename)
+        
+        # pick the first video and upload it    
+        print "Processing the source path" , sourcepath
+        nextfiletoprocess = ""
+        for name in os.listdir(sourcepath):    
+            (base, ext) = os.path.splitext(name)
+            if ext in validextensions:
+                print " === Got the one to process : ", os.path.join(sourcepath, name)
+                nextfiletoprocess_name = name
+                nextfiletoprocess_path = os.path.join(sourcepath, name)
 
-    v = vimeo.VimeoClient(token=API_TOCKEN, key=API_KEY, secret=API_SECRET)
-    about_me = v.get('/me')
+                print "Break out of the loop"
+                break
 
-    if about_me.status_code == 200 :
-        print "I can connect to the account. About me status code is %s and the name is %s" % (about_me.status_code, about_me.json())
-    else:
-        print "We are not authenticated. Status code is %s", about_me.status_code
-    
-    print "Uploading video ", nextfiletoprocess_path
-    video_uri = v.upload(nextfiletoprocess_path)
-    #video_uri = '/videos/152054345'
-    print "Done. Video uri is", video_uri
+        # Got our file, then upload it
+        nextfiletoprocess_title = "%s auto uploaded" % nextfiletoprocess_name
+        nextfiletoprocess_description = "%s auto described. A real description must go here." % nextfiletoprocess_name
 
-    print "Setting the title of the video %s to %s" % (video_uri, nextfiletoprocess_title)
-    #response = v.patch(video_uri, {'name': 'nextfiletoprocess_title', 'description': 'This is the videos description.'})
-    response = set_video_title(v.token, video_uri, nextfiletoprocess_title, nextfiletoprocess_description, 'nobody')
+        v = vimeo.VimeoClient(token=API_TOCKEN, key=API_KEY, secret=API_SECRET)
+        about_me = v.get('/me')
 
-    # check if the upload is ok
-    #jsonresponse = json.loads(response)
+        if about_me.status_code == 200 :
+            print "I can connect to the account. About me status code is %s and the name is %s" % (about_me.status_code, about_me.json())
+        else:
+            print "We are not authenticated. Status code is %s", about_me.status_code
+        
+        print "Uploading video ", nextfiletoprocess_path
+        video_uri = v.upload(nextfiletoprocess_path)
+        #video_uri = '/videos/152054345'
+        print "Done. Video uri is", video_uri
 
-    if response.status_code == 200 :
-        print "Upload and metadata set was successfull. Status code value was %s" % (response.status_code)
-        # move the file to the archive folder
-        destinationpath = configvars['destination'].rstrip()
-        dst = os.path.join(destinationpath, name)
-        print "Moving video file from %s to %s" % (nextfiletoprocess_path, dst)
-        os.rename(nextfiletoprocess_path, dst)
+        print "Setting the title of the video %s to %s" % (video_uri, nextfiletoprocess_title)
+        #response = v.patch(video_uri, {'name': 'nextfiletoprocess_title', 'description': 'This is the videos description.'})
+        response = set_video_title(v.token, video_uri, nextfiletoprocess_title, nextfiletoprocess_description, 'nobody')
 
-    else:
-        print "Upload failed. File will not be moved to the archive so we can process it next time."
-        print "Status code was %s" % (response.status_code)
+        # check if the upload is ok
+        #jsonresponse = json.loads(response)
+
+        if response.status_code == 200 :
+            print "Upload and metadata set was successfull. Status code value was %s" % (response.status_code)
+            # move the file to the archive folder
+            destinationpath = configvars['destination'].rstrip()
+            dst = os.path.join(destinationpath, name)
+            print "Moving video file from %s to %s" % (nextfiletoprocess_path, dst)
+            os.rename(nextfiletoprocess_path, dst)
+
+        else:
+            print "Upload failed. File will not be moved to the archive so we can process it next time."
+            print "Status code was %s" % (response.status_code)
 
 
 
-    # remove the lock file
-    dailymotion_upload.removelockfile(lockfilename)
+        # remove the lock file
+        dailymotion_upload.removelockfile(lockfilename)
 
-    print "-------  Vimeo upload ended --------"
+        print "-------  Vimeo upload ended --------"
+    except:
+        errormessage = errormessage + " -> " + sys.exc_info()[0]
+        logger.debug("Something bad happned. The error is ", sys.exc_info()[0], ". Thats all we know")
+
+    finally:
+
+        dailymotion.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
+            "video@monegliseaparis.fr",
+            "Video file $videofile successfully uploaded to Youtube",
+            "Hello, I have just uploaded the video $videofile to Youtube and I wanted to notify you. Here are the possible errors : " + errormessage + " I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
+            )
 
 if __name__ == '__main__':
     main()
