@@ -15,7 +15,7 @@ echo Moving to script directory $scriptdirectory
 cd $(dirname "$0")
 echo Current directory is $(pwd)
 
-configfilename=ftp.uploader.cfg
+configfilename=eepm_videos_processor.cfg
 
 echo Reading configuration file $configfilename...
 if [ -a $configfilename ]; then
