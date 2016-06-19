@@ -196,7 +196,7 @@ def main():
 
   try:
     validextensions = [".mp4", ".mov", ".mp3"]
-    configvars = dailymotion.load_variables("eepm_video_processor.cfg")
+    configvars = dailymotion.load_variables("eepm_videos_processor.cfg")
     sourcepath = configvars['sourcepath'].rstrip()
     destination = configvars['destination'].rstrip()
 
