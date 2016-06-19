@@ -10,7 +10,7 @@
         <string>/Applications/eepm-video-tools.app/eepm_videos_processor.sh</string>
     </array>
     <key>StartInterval</key>
-    <integer>900</integer>
+    <integer>7200</integer>
     <key>StandardOutPath</key>
     <string>/Applications/eepm-video-tools.app/eepm_videos_processor.log</string>
     <key>StandardErrorPath</key>
