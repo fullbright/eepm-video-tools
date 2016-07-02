@@ -155,8 +155,8 @@ def uploadDir(top, transferId, recursive):
 def startAutomaticUpload():
     # Read the configuration files
     configvars = utils.load_variables("eepm_videos_processor.cfg")
-    sourcepath = configvars['youtube.sourcepath'].rstrip()
-    destination = configvars['youtube.destination'].rstrip()
+    sourcepath = configvars['wetransfer.sourcepath'].rstrip()
+    destination = configvars['wetransfer.destination'].rstrip()
 
     # Get the next video from the source path
     validextensions = [".mp4", ".mov", ".mp3"]
