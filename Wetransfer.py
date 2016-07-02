@@ -13,6 +13,7 @@ from urlparse import urlparse, parse_qs
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 import os, requests, sys, json, re, argparse, sys, mimetypes, collections
+import Utils as utils
 
 WE_TRANSFER_API_URL = "https://www.wetransfer.com/api/v1/transfers"
 CHUNK_SIZE = 5242880
@@ -151,6 +152,52 @@ def uploadDir(top, transferId, recursive):
             print("Upload file : " + os.path.abspath(os.path.join(root, name)))
             uploadFile(transferId, os.path.abspath(os.path.join(root, name)))
 
+def startAutomaticUpload():
+    # Read the configuration files
+    configvars = utils.load_variables("eepm_videos_processor.cfg")
+    sourcepath = configvars['youtube.sourcepath'].rstrip()
+    destination = configvars['youtube.destination'].rstrip()
+
+    # Get the next video from the source path
+    validextensions = [".mp4", ".mov", ".mp3"]
+    fileToUpload = utils.getNextVideoToProcess(sourcepath, validextensions)
+
+    print "File to upload %s", fileToUpload
+
+    # Upload that video
+    if fileToUpload != None :
+        uploadThisVideo(fileToUpload, "video@monegliseaparis.fr", "afanousergio@yahoo.fr", "EEPM Video %s" % fileToUpload)
+    else :
+        print "Nothing to upload. There is no next video."
+
+def uploadThisVideo(videopath, sender, receiver, message):
+
+    # TODO : Check that it is not too big for the upload
+
+
+    transferId = getTransferId(sender, receiver, message)
+    
+    # Upload it
+    try:
+        if os.path.isfile(videopath):
+            print("Upload file : " + videopath)
+            uploadFile(transferId, videopath)
+        else:
+            print("The object you are trying to upload is not a file")        
+            
+            finalizeTransfer(transferId)
+    except KeyboardInterrupt:
+        print ""
+        if transferId:
+            cancelTransfer(transferId)
+
+    # Send a mail to tell the gospel ;)
+    utils.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
+                        "video@monegliseaparis.fr",
+                        "WeTransfer : videos processing report",
+                        "Hello, I have just uploaded the video  to Wetransfer and I wanted to notify you. I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
+                    )
+
 def main(argv):
     errormessage = ""
 
@@ -189,11 +236,16 @@ def main(argv):
 
     finally:
 
-        dailymotion.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
+        utils.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
             "video@monegliseaparis.fr",
             "WeTransfer : videos processing report",
             "Hello, I have just uploaded the video $videofile to Youtube and I wanted to notify you. Here are the possible errors : " + errormessage + " I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
             )
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+
+    if len(sys.argv) > 1 :
+        # We have command line arguments. Let's process them
+        main(sys.argv[1:])
+    else:
+        startAutomaticUpload()

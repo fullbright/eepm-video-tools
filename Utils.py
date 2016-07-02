@@ -4,8 +4,27 @@ import dailymotion
 import os
 import json
 import requests
+import glob
+import logging
+import logging.handlers
 
 MAILGUN_APIKEY = 'key-44faoj5x2z0nbxz3r08todivhnh17261'
+
+
+## Setup logging
+logger = logging.getLogger('eepm_video_processor')
+logger.setLevel(logging.DEBUG)
+current_script_file = os.path.realpath(__file__)
+current_script_dir = os.path.abspath(os.path.join(current_script_file, os.pardir))
+fh = logging.handlers.RotatingFileHandler(
+              "%s/eepm_videos_processor.log" % (current_script_dir), 
+              maxBytes=20000, backupCount=5)
+#logging.FileHandler("%s/eepm_video_processor.log" % (current_script_dir))
+fh.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+logger.addHandler(fh)
+
 
 # load the variables
 
@@ -68,6 +87,25 @@ def write_lock_file(lockfilename):
     lockfile.write("%d" % currentpid)
     lockfile.close()
 
+def getNextVideoToProcess(sourcefolder, validextensions):
+
+    print "Getting next video for folder ", sourcefolder
+
+    for root, dirs, files in os.walk(sourcefolder):
+
+        #for filename in glob.glob1(sourcefolder, "*.*"):
+        for filename in files:
+          (base, ext) = os.path.splitext(filename)
+          logger.debug("Checking file %s with extension %s" % (base, ext))
+          print("Checking file %s with extension %s" % (base, ext))
+          
+          if ext in validextensions:
+            return os.path.join(sourcefolder, filename)
+
+          else:
+            logger.debug("The file %s 's extension is not part of the valid extensions." % filename)
+
+        return None
 
 def removelockfile(lockfilename):
     print "Removing lock file "
