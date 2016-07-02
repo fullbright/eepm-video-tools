@@ -71,7 +71,7 @@ else
 
 	## Step 4 - Launch the emci upload for enseignemoi and emcitv
 	wetransfer_result=$(/usr/local/bin/python Wetransfer.py)
-	echo "Youtube result = $wetransfer_result"
+	echo "Wetransfer result = $wetransfer_result"
 
 	## Step 4 - Do some housekeeping
 	housekeeping_result=$(/usr/local/bin/python VideoArchiver.py)
