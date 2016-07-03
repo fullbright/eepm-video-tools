@@ -147,6 +147,7 @@ def get_credentials():
 def main():
     
     errormessage = ""
+    values = []
 
     try:
         """Shows basic usage of the Sheets API.
@@ -187,10 +188,12 @@ def main():
             "Hello, I have just uploaded the video $videofile to Youtube and I wanted to notify you. Here are the possible errors : " + errormessage + " I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
             )
 
+        return values
+
 if __name__ == '__main__':
     main()
 
-    455804358556-p4mrvndjgmivjdi99j58ga9cq3shj4b1.apps.googleusercontent.com
+    #455804358556-p4mrvndjgmivjdi99j58ga9cq3shj4b1.apps.googleusercontent.com
 
 
 
