@@ -176,7 +176,7 @@ def startAutomaticUpload():
 
         print "We are going to process the file %s (%s) MB, date (%s). If upload successfull, will be moved to %s" % (fileToUpload, size, filedate, destfile)
 
-        uploadResult = True #uploadThisVideo(fileToUpload, "video@monegliseaparis.fr", "afanousergio@yahoo.fr", "EEPM Video %s" % fileToUpload)
+        uploadResult = uploadThisVideo(fileToUpload, "video@monegliseaparis.fr", "afanousergio@yahoo.fr", "EEPM Video %s" % fileToUpload)
 
         if uploadResult == True:
             print "Move the processed file to the destination"
