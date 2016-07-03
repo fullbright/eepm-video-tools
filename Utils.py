@@ -7,6 +7,8 @@ import requests
 import glob
 import logging
 import logging.handlers
+import ntpath
+import shutil
 
 MAILGUN_APIKEY = 'key-44faoj5x2z0nbxz3r08todivhnh17261'
 
@@ -110,6 +112,10 @@ def getNextVideoToProcess(sourcefolder, validextensions):
 def removelockfile(lockfilename):
     print "Removing lock file "
     os.remove(lockfilename)
+
+def path_leaf(path):
+    head, tail = ntpath.split(path)
+    return tail or ntpath.basename(head)
 
 def send_email(sender, recipients, subject, htmlmessage):
     """

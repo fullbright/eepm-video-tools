@@ -14,6 +14,8 @@ from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 import os, requests, sys, json, re, argparse, sys, mimetypes, collections
 import Utils as utils
+import shutil
+import time
 
 WE_TRANSFER_API_URL = "https://www.wetransfer.com/api/v1/transfers"
 CHUNK_SIZE = 5242880
@@ -166,14 +168,47 @@ def startAutomaticUpload():
 
     # Upload that video
     if fileToUpload != None :
-        uploadThisVideo(fileToUpload, "video@monegliseaparis.fr", "afanousergio@yahoo.fr", "EEPM Video %s" % fileToUpload)
+
+        size = os.path.getsize(fileToUpload) / (1024*1024.0) 
+        filedate = time.ctime(os.stat(fileToUpload).st_mtime)  
+        destfileName = utils.path_leaf(fileToUpload)
+        destfile = os.path.join(destination, destfileName)
+
+        print "We are going to process the file %s (%s) MB, date (%s). If upload successfull, will be moved to %s" % (fileToUpload, size, filedate, destfile)
+
+        uploadResult = True #uploadThisVideo(fileToUpload, "video@monegliseaparis.fr", "afanousergio@yahoo.fr", "EEPM Video %s" % fileToUpload)
+
+        if uploadResult == True:
+            print "Move the processed file to the destination"
+            print "Moving %s to %s" % (fileToUpload, destfile)
+
+            if not os.path.isfile(destfile):
+                size = os.path.getsize(fileToUpload) / (1024*1024.0)
+                shutil.move(fileToUpload, destfile)
+            else:
+                print "Cannot move. Destination file exists."
+        else:
+            print "Upload failed :( Sorry"
+
+        # Send a mail to tell the gospel ;)
+        utils.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
+                            "video@monegliseaparis.fr",
+                            "WeTransfer : videos processing report",
+                            "Hello, I have just uploaded the video to Wetransfer and I wanted to notify you. I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
+                        )
+
+
     else :
         print "Nothing to upload. There is no next video."
 
 def uploadThisVideo(videopath, sender, receiver, message):
 
-    # TODO : Check that it is not too big for the upload
-
+    # Check that it is not too big for the upload
+    fileSize = os.path.getsize(fileToUpload) / (1024*1024.0)
+    print "The file %s size %s" % (videopath, fileSize)
+    if fileSize > 1900 :
+        print "The file is over the 2Go allowed by Wetransfer. Cannot upload"
+        return False
 
     transferId = getTransferId(sender, receiver, message)
     
@@ -182,21 +217,16 @@ def uploadThisVideo(videopath, sender, receiver, message):
         if os.path.isfile(videopath):
             print("Upload file : " + videopath)
             uploadFile(transferId, videopath)
+            finalizeTransfer(transferId)
+            return True
         else:
             print("The object you are trying to upload is not a file")        
             
-            finalizeTransfer(transferId)
-    except KeyboardInterrupt:
-        print ""
+    except KeyboardInterrupt, e:
+        print "Oh daizy, an error occured. ", str(e)
         if transferId:
             cancelTransfer(transferId)
-
-    # Send a mail to tell the gospel ;)
-    utils.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
-                        "video@monegliseaparis.fr",
-                        "WeTransfer : videos processing report",
-                        "Hello, I have just uploaded the video  to Wetransfer and I wanted to notify you. I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
-                    )
+        return False
 
 def main(argv):
     errormessage = ""
