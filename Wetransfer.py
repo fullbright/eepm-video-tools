@@ -204,7 +204,7 @@ def startAutomaticUpload():
 def uploadThisVideo(videopath, sender, receiver, message):
 
     # Check that it is not too big for the upload
-    fileSize = os.path.getsize(fileToUpload) / (1024*1024.0)
+    fileSize = os.path.getsize(videopath) / (1024*1024.0)
     print "The file %s size %s" % (videopath, fileSize)
     if fileSize > 1900 :
         print "The file is over the 2Go allowed by Wetransfer. Cannot upload"
