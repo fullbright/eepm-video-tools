@@ -10,3 +10,4 @@ oauth2client
 poster
 pycurl
 gspread
+jinja2
