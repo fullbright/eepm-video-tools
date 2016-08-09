@@ -78,11 +78,15 @@ class VideoArchiver():
         self.log(0,"Archived " + str(count) + " files, totalling " + str(round(size,2)) + "MB.")
         self.end(0)
 
+        return count, size
+
 if __name__ == '__main__':
 
     errormessage = ""
     archive_result = ""
     archiver = None
+    count = None
+    size = None
 
     try:
         # Load the configuration
@@ -106,7 +110,7 @@ if __name__ == '__main__':
 
         # Start the archiver and archive files
         archiver = VideoArchiver(source_folder, destination_folder)
-        archiver.process()
+        count, size = archiver.process()
 
     except Exception as e:
         errormessage = errormessage + " -> " + str(e)
@@ -118,7 +122,7 @@ if __name__ == '__main__':
         utils.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
             "video@monegliseaparis.fr",
             "Video archiver : videos processing report",
-            "Hello, I have just archived some videos and I wanted to notify you. Here are the possible errors : " + errormessage + " I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
+            "Hello, I have just archived some videos (" + str(count) + ") with size (" + str(size) + ") and I wanted to notify you. Here are the possible errors : " + errormessage + " I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
         )
 
 
