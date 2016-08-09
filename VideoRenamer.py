@@ -9,7 +9,7 @@ import os
 import glob
 import shutil
 import time
-import dailymotion_upload as dailymotion
+import Utils as utils
 import logging
 import gspread
 
@@ -178,11 +178,11 @@ def main():
                 print('%s, %s, %s, %s' % (row[0], row[1], row[2], row[3]))
     except:
         errormessage = errormessage + " -> " + sys.exc_info()[0]
-        logger.debug("Something bad happned. The error is ", sys.exc_info()[0], ". Thats all we know")
+        #logger.debug("Something bad happned. The error is ", sys.exc_info()[0], ". Thats all we know")
 
     finally:
 
-        dailymotion.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
+        utils.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
             "video@monegliseaparis.fr",
             "Video renamer : videos processing report",
             "Hello, I have just uploaded the video $videofile to Youtube and I wanted to notify you. Here are the possible errors : " + errormessage + " I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
