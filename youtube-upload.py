@@ -21,7 +21,7 @@ import Utils as dailymotion
 
 
 ## Setup logging
-logger = logging.getLogger('eepm_video_processor')
+logger = logging.getLogger('eepm_video_processor.YoutubeUpload')
 logger.setLevel(logging.DEBUG)
 current_script_file = os.path.realpath(__file__)
 current_script_dir = os.path.abspath(os.path.join(current_script_file, os.pardir))
