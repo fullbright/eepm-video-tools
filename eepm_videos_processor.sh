@@ -36,22 +36,49 @@ else
     echo "Diverged"
 fi
 
+echo "Display ps -af command without awk"
+ps -af | grep "eepm_videos_processor"
+
+echo "Display ps -af command with awk"
+echo `ps -af | grep "eepm_videos_processor" | awk '{print $2}'`
+
+echo "Display ps -af command and store in a variable"
+currentpid=$(ps -af | grep "eepm_videos_processor" | awk '$8 == "/bin/sh ./eepm_videos_processor.sh" {print $2}')
+echo "Current pid $currentpid"
+#echo $currentpid
 
 echo Checking the lock file ...
 if [ -a $lockfilename ]; then
 	echo Lock file exist.
-	echo Script is running. Exiting ...
+	echo Checking if the process is still running ...
+
+	lockfilepid=`cat $lockfilename`
+	echo "lockfilepid is $lockfilepid"
+	
+	#ps aux | grep `cat $lockfilename` > /dev/null
+	#if [ $? -eq 0 ]; then
+	if [ "$currentpid" -eq "$lockfilepid" ]; then
+		echo "Current pid $currentpid equals lockfilepid $lockfilepid"
+		echo "Process is running ... Exiting ..."
+	else
+		echo "Current pid $currentpid NOT equals lockfilepid $lockfilepid"
+	  	echo "Process is not running. This is a dead lock. Removing the lock file"
+	  rm -f $lockfilename
+	fi
 
 else
 	echo "Lock file doesn't exist. Executing the script ..."
 
-	echo "Wrting the current date to the file $lockfilename"
-	echo $(date) > $lockfilename
+	echo "Writing the pid of the current process to the file $lockfilename"
+	#echo $(date) > $lockfilename
+	#`ps -af | grep "eepm_videos_processor" | grep -v grep | awk '{print $2}'` > $lockfilename
+	echo $currentpid > $lockfilename
 
 	echo Here is the content of the lockfile
 	cat $lockfilename
 	echo "-------------------------------------------------"
 	echo ""
+	sleep 90
 
 	## Step 1 -  Launch the youtube uploader
 	youtube_result=$(/usr/local/bin/python youtube-upload.py)
