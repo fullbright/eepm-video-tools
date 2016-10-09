@@ -11,3 +11,4 @@ poster
 pycurl
 gspread
 jinja2
+pyyaml
