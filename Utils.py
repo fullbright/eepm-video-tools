@@ -9,8 +9,12 @@ import logging
 import logging.handlers
 import ntpath
 import shutil
+import yaml
+
 
 MAILGUN_APIKEY = 'key-44faoj5x2z0nbxz3r08todivhnh17261'
+YAMLCONFIGFILE = "settings.yaml"
+INICONFIGFILE = "eepm_videos_processor.cfg"
 
 
 ## Setup logging
@@ -31,16 +35,53 @@ logger.addHandler(fh)
 # load the variables
 
 def load_variables(configfile):
-    configvars = {}
-    # read the configuration file
-    with open(configfile) as myfile:
-        for line in myfile:
-            if not line.startswith('#') and not line.strip() == '' : # ignore line begining with #
-                name, var = line.partition("=")[::2]
-                print "Storing variable %s with value %s" % (name, var)
-                configvars[name.replace('\\n', '').strip()] = var.replace('\\n', '')
 
-    return configvars
+    dataMap = {}
+
+    if not os.path.exists(YAMLCONFIGFILE):
+        convertIniToYaml()
+
+    # If there is a yaml configuration file, use it.
+    if os.path.exists(YAMLCONFIGFILE):
+        f = open(YAMLCONFIGFILE)
+        dataMap = yaml.load(f)
+        f.close()
+    
+    return dataMap    
+
+    #configvars = {}
+    ## read the configuration file
+    #with open(configfile) as myfile:
+    #    for line in myfile:
+    #        if not line.startswith('#') and not line.strip() == '' : # ignore line begining with #
+    #            name, var = line.partition("=")[::2]
+    #            #print "Storing variable %s with value %s" % (name, var)
+    #            configvars[name.replace('\\n', '').strip()] = var.replace('\\n', '')
+    #return configvars
+
+def convertIniToYaml():
+
+    if not os.path.exists(YAMLCONFIGFILE):
+        logger.debug("Configuration file %s doesn't exist. Converting the ini file to yaml" % (YAMLCONFIGFILE))
+
+        #variables = load_variables(INICONFIGFILE)
+        variables = {}
+        # read the configuration file
+        with open(INICONFIGFILE) as myfile:
+            for line in myfile:
+                if not line.startswith('#') and not line.strip() == '' : # ignore line begining with #
+                    name, var = line.partition("=")[::2]
+                    #print "Storing variable %s with value %s" % (name, var)
+                    variables[name.replace('\\n', '').strip()] = var.replace('\\n', '').strip()
+
+        print "Writing data to the yaml file", YAMLCONFIGFILE
+        with open(YAMLCONFIGFILE, 'w') as outfile:
+            yaml.dump(variables, outfile, default_flow_style=True)
+    else:
+        logger.debug("Configuration file %s exist. No conversion needed." % (YAMLCONFIGFILE))
+
+
+    
 
 def check_lock_file(lockfilename):
     """ Checks if the lockfile exist, 
