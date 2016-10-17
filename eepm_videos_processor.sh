@@ -43,9 +43,12 @@ echo "Display ps -af command with awk"
 echo `ps -af | grep "eepm_videos_processor" | awk '{print $2}'`
 
 echo "Display ps -af command and store in a variable"
-currentpid=$(ps -af | grep "eepm_videos_processor" | awk '$8 == "/bin/sh ./eepm_videos_processor.sh" {print $2}')
+#currentpid=$(ps -af | grep "eepm_videos_processor" | awk '$8 == "/bin/sh ./eepm_videos_processor.sh" {print $2}')
+$currentpid=$$
 echo "Current pid $currentpid"
-#echo $currentpid
+echo $currentpid
+
+#lockfile $lockfilename -l
 
 echo Checking the lock file ...
 if [ -a $lockfilename ]; then
@@ -63,7 +66,7 @@ if [ -a $lockfilename ]; then
 	else
 		echo "Current pid $currentpid NOT equals lockfilepid $lockfilepid"
 	  	echo "Process is not running. This is a dead lock. Removing the lock file"
-	  rm -f $lockfilename
+	    rm -f $lockfilename
 	fi
 
 else
