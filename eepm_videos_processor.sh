@@ -44,7 +44,7 @@ echo `ps -af | grep "eepm_videos_processor" | awk '{print $2}'`
 
 echo "Display ps -af command and store in a variable"
 #currentpid=$(ps -af | grep "eepm_videos_processor" | awk '$8 == "/bin/sh ./eepm_videos_processor.sh" {print $2}')
-$currentpid=$$
+currentpid=$$
 echo "Current pid $currentpid"
 echo $currentpid
 
