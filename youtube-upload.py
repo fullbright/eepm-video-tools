@@ -26,7 +26,7 @@ logger.setLevel(logging.DEBUG)
 current_script_file = os.path.realpath(__file__)
 current_script_dir = os.path.abspath(os.path.join(current_script_file, os.pardir))
 fh = logging.handlers.RotatingFileHandler(
-              "%s/eepm_videos_processor.log" % (current_script_dir), 
+              "%s/eepm_videos_processor.log" % (current_script_dir),
               maxBytes=20000000, backupCount=5)
 #logging.FileHandler("%s/eepm_video_processor.log" % (current_script_dir))
 fh.setLevel(logging.DEBUG)
@@ -203,7 +203,7 @@ def main():
     for filename in glob.glob1(sourcepath, "*.*"):
       (base, ext) = os.path.splitext(filename)
       logger.debug("Checking file %s with extension %s" % (base, ext))
-      
+
       if ext in validextensions:
         srcfile = os.path.join(sourcepath, filename)
 
@@ -238,9 +238,9 @@ def main():
       else:
         logger.debug("The file %s 's extension is not part of the valid extensions." % filename)
 
-  except:
-    errormessage = errormessage + " -> " + sys.exc_info()[0]
-    logger.debug("Something bad happned. The error is ", sys.exc_info()[0], ". Thats all we know")
+  except Exception as e:
+    errormessage = errormessage + " -> " + str(e) #sys.exc_info()[0]
+    logger.debug("Something bad happned. The error is ", errormessage, ". Thats all we know")
 
   finally:
 
