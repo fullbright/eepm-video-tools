@@ -7,10 +7,10 @@ import requests
 
 # upload the video
 def upload(videofile, title, API_KEY, API_SECRET, USERNAME, PASSWORD):
-	
+
 
     d = dailymotion.Dailymotion()
-    d.set_grant_type('password', api_key=API_KEY, api_secret=API_SECRET, 
+    d.set_grant_type('password', api_key=API_KEY, api_secret=API_SECRET,
         scope=['manage_videos'], info={'username': USERNAME, 'password': PASSWORD})
 
     print "Posting the video %s to dailymotion in private mode" % (videofile)
@@ -42,11 +42,11 @@ def main():
 
         # prevent double upload with a lock file
         check_lock_file(lockfilename)
-        
-        # pick the first video and upload it    
+
+        # pick the first video and upload it
         print "Processing the source path" , sourcepath
         nextfiletoprocess = ""
-        for name in os.listdir(sourcepath):    
+        for name in os.listdir(sourcepath):
             (base, ext) = os.path.splitext(name)
             if ext in validextensions:
                 print " === Got the one to process : ", os.path.join(sourcepath, name)
@@ -91,7 +91,7 @@ def main():
 
     finally:
 
-        dailymotion.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
+        utils.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
             "video@monegliseaparis.fr",
             "Dailymotion : videos processing report",
             "Hello, I have just uploaded the video $videofile to Youtube and I wanted to notify you. Here are the possible errors : " + errormessage + " I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."

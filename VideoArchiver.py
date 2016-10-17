@@ -115,7 +115,7 @@ if __name__ == '__main__':
     except Exception as e:
         errormessage = errormessage + " -> " + str(e)
         print errormessage
-        archiver.logger.debug("Something bad happned. The error is ", errormessage, ". Thats all we know")
+        archiver.log(0, "Something bad happned. The error is ", errormessage, ". Thats all we know")
 
     finally:
 
