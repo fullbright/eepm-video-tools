@@ -98,6 +98,23 @@ Fill the vimeo.uploader.cfg with the collected information from the application 
 If you want to upload automatically another set of files, edit directly the script.
 
 
+# Dev tools installations
+
+I recommend to use virtualenv to configure the running environement of development.
+
+    pip install virtualenv
+    pip install setuptools
+    virtualenv venv
+    pip install -r requirements.txt
+
+At the very end of the developement, run these to save your work.
+
+    deactivate
+    pip freeze > requirements.txt
+
+
+[Learn more](http://docs.python-guide.org/en/latest/dev/virtualenvs/)
+
 # Improvements
 
 Code improvements
