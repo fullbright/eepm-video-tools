@@ -28,7 +28,7 @@ def set_video_title(access_token, video_uri, title, description, privacy):
     #print "Setting access_token %s in the Authorization header" % access_token
     auth_headers = {'Authorization': 'Bearer ' + access_token}
     print auth_headers
-    
+
     return requests.patch("https://api.vimeo.com" + video_uri, data=payload, headers=auth_headers)
 
 def main():
@@ -50,11 +50,11 @@ def main():
 
         # prevent double upload with a lock file
         utils.check_lock_file(lockfilename)
-        
-        # pick the first video and upload it    
+
+        # pick the first video and upload it
         print "Processing the source path" , sourcepath
         nextfiletoprocess = ""
-        for name in os.listdir(sourcepath):    
+        for name in os.listdir(sourcepath):
             (base, ext) = os.path.splitext(name)
             if ext in validextensions:
                 print " === Got the one to process : ", os.path.join(sourcepath, name)
@@ -75,7 +75,7 @@ def main():
             print "I can connect to the account. About me status code is %s and the name is %s" % (about_me.status_code, about_me.json())
         else:
             print "We are not authenticated. Status code is %s", about_me.status_code
-        
+
         print "Uploading video ", nextfiletoprocess_path
         video_uri = v.upload(nextfiletoprocess_path)
         #video_uri = '/videos/152054345'
@@ -98,7 +98,7 @@ def main():
 
         else:
             print "Upload failed. File will not be moved to the archive so we can process it next time."
-            print "Status code was %s" % (response.status_code)
+            print "Status code was ", response.status_code
 
 
 

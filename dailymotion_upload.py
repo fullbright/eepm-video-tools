@@ -4,6 +4,7 @@ import Utils as utils
 import os
 import json
 import requests
+import sys
 
 # upload the video
 def upload(videofile, title, API_KEY, API_SECRET, USERNAME, PASSWORD):
@@ -85,9 +86,11 @@ def main():
         removelockfile(lockfilename)
         print "--------------- Dailymotion process ended --------------- "
 
-    except:
-        errormessage = errormessage + " -> " + sys.exc_info()[0]
-        logger.debug("Something bad happned. The error is ", sys.exc_info()[0], ". Thats all we know")
+    except Exception as e:
+        logger.debug("Oh daizy. Something bad happened during dailymotion process. Starting error handling")
+        errormessage = errormessage + " -> " + str(e) # sys.exc_info()[0]
+        logger.debug("Something bad happened. The error is ", sys.exc_info()[0], ". Thats all we know")
+        logger.debug("End of error handling.")
 
     finally:
 

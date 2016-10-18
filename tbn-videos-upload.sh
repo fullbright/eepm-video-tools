@@ -9,7 +9,9 @@
 
 # Documentation at : http://www.thegeekstuff.com/2012/04/curl-examples/
 
-echo "Starting script ftp uploader"
+echo "--------------------------------"
+echo $(date)
+echo "Starting TBN script ftp uploader"
 scriptdirectory="$(dirname "$0")"
 echo Moving to script directory $scriptdirectory
 cd $(dirname "$0")
@@ -82,3 +84,7 @@ else
 	echo "Sorry, can't find the configuration file. Exiting ..."
 	exit -1
 fi
+
+echo $(date)
+echo "End of processing of TBN videos"
+echo "-------------------------------"
