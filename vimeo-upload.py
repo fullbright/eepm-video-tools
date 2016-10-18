@@ -107,8 +107,10 @@ def main():
 
         print "-------  Vimeo upload ended --------"
     except Exception, e:
+        logger.debug("Oh daisy !!! Something wrong happened during vimeo video processing. Starting error handling ...")
         errormessage = errormessage + " -> " + str(e)
         logger.debug("Something bad happned. The error is ", errormessage, ". Thats all we know")
+        logger.debug("End of error handling")
 
     finally:
 

@@ -240,7 +240,7 @@ def main():
 
   except Exception as e:
     logger.debug("Oh daizy !!! Something bad happened during Youtube processing. Start exception handling.")
-    errormessage = errormessage + " -> " + str(e) #sys.exc_info()[0]
+    errormessage = errormessage + " -> "
     logger.debug("Something bad happned. The error is ", errormessage, ". Thats all we know")
     logger.debug("End of exception handling.")
 

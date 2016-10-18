@@ -27,6 +27,7 @@ def upload(videofile, title, API_KEY, API_SECRET, USERNAME, PASSWORD):
 
 def main():
 
+    logger = logging.getLogger("eepm_video_processor.DailymotionUpload")
     errormessage = ""
 
     try:

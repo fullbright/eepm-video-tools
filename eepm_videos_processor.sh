@@ -96,7 +96,8 @@ else
 	echo "Dailymotion result = $dailymotion_result"    
 
 	## Step 3 - Launch the ftp upload for tbn and the others
-	ftp_result=$(./tbn-videos-upload.sh)
+	ftp_result="cannot get ftp result since it is a sh file"
+    sh ./tbn-videos-upload.sh
 	echo "FTP result = $ftp_result"
 
 	## Step 4 - Launch the emci upload for enseignemoi and emcitv
