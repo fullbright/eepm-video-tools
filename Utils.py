@@ -183,7 +183,7 @@ def send_email(sender, recipients, subject, htmlmessage):
         Sends an email using mailgun
     """
 
-    socket.gethostname()
+    hostname = socket.gethostname()
     subject = subject + "(" + hostname + ")"
     attachments = {}
     filesToAttach = ["/Applications/eepm-video-tools.app/eepm_videos_processor.log"]
