@@ -5,6 +5,7 @@ import os
 import json
 import requests
 import sys
+import logging
 
 # upload the video
 def upload(videofile, title, API_KEY, API_SECRET, USERNAME, PASSWORD):
