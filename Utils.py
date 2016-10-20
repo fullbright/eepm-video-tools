@@ -10,7 +10,7 @@ import logging.handlers
 import ntpath
 import shutil
 import yaml
-
+import socket
 
 MAILGUN_APIKEY = 'key-44faoj5x2z0nbxz3r08todivhnh17261'
 YAMLCONFIGFILE = "settings.yaml"
@@ -23,7 +23,7 @@ logger.setLevel(logging.DEBUG)
 current_script_file = os.path.realpath(__file__)
 current_script_dir = os.path.abspath(os.path.join(current_script_file, os.pardir))
 fh = logging.handlers.RotatingFileHandler(
-              "%s/eepm_videos_processor.log" % (current_script_dir), 
+              "%s/eepm_videos_processor.log" % (current_script_dir),
               maxBytes=20000000, backupCount=5)
 #logging.FileHandler("%s/eepm_video_processor.log" % (current_script_dir))
 fh.setLevel(logging.DEBUG)
@@ -36,18 +36,24 @@ logger.addHandler(fh)
 
 def load_variables(configfile):
 
+    logger.debug("Loading variables from config file %s" % (configfile))
     dataMap = {}
 
+    logger.debug("Testing yaml config file to initiate conversion")
     if not os.path.exists(YAMLCONFIGFILE):
         convertIniToYaml()
 
     # If there is a yaml configuration file, use it.
+    logger.debug("Checking if a yaml file is available to use it")
     if os.path.exists(YAMLCONFIGFILE):
+        logger.debug("Found a yaml file, using it")
         f = open(YAMLCONFIGFILE)
         dataMap = yaml.load(f)
         f.close()
-    
-    return dataMap    
+
+    # TODO : Remove the line below after stabilizing the yaml config conversion
+
+    return dataMap
 
     #configvars = {}
     ## read the configuration file
@@ -81,15 +87,15 @@ def convertIniToYaml():
         logger.debug("Configuration file %s exist. No conversion needed." % (YAMLCONFIGFILE))
 
 
-    
+
 
 def check_lock_file(lockfilename):
-    """ Checks if the lockfile exist, 
+    """ Checks if the lockfile exist,
     If yes, it makes sure that the PID inside is still running.
     If so, print a message and exit """
     if os.path.exists(lockfilename):
         print "Lockfile %s exists. Checking if the process pid is still alive ..." % lockfilename
-        
+
         if check_pid_in_file(lockfilename):
             print "Process with PID %s is still running. Exiting ..." % currentpid
             exit(0)
@@ -101,7 +107,7 @@ def check_lock_file(lockfilename):
 
 
 def check_pid_in_file(filename):
-    """ Read the pid from the file 
+    """ Read the pid from the file
     and check if the Process is still running """
     with open(filename, 'r') as f:
         pid = f.readline()
@@ -109,7 +115,7 @@ def check_pid_in_file(filename):
         # check the PID
         return check_pid(pid)
 
-def check_pid(pid):        
+def check_pid(pid):
     """ Check For the existence of a unix pid. """
     try:
         os.kill(pid, 0)
@@ -141,7 +147,7 @@ def getNextVideoToProcess(sourcefolder, validextensions):
           (base, ext) = os.path.splitext(filename)
           logger.debug("Checking file %s with extension %s" % (base, ext))
           print("Checking file %s with extension %s" % (base, ext))
-          
+
           if ext in validextensions:
             return os.path.join(sourcefolder, filename)
 
@@ -155,11 +161,11 @@ def removelockfile(lockfilename):
     os.remove(lockfilename)
 
 def removeLockfileIfprocessnotrunning(lockfilename):
-    
+
     print "Removing lock file name : %s" % lockfilename
     removelockfile(lockfilename)
 
-def check_pid(pid):        
+def check_pid(pid):
     """ Check For the existence of a unix pid. """
     try:
         os.kill(pid, 0)
@@ -177,6 +183,8 @@ def send_email(sender, recipients, subject, htmlmessage):
         Sends an email using mailgun
     """
 
+    socket.gethostname()
+    subject = subject + "(" + hostname + ")"
     attachments = {}
     filesToAttach = ["/Applications/eepm-video-tools.app/eepm_videos_processor.log"]
     index = 0
@@ -189,9 +197,9 @@ def send_email(sender, recipients, subject, htmlmessage):
             index = index + 1
 
     request_url = 'https://api.mailgun.net/v3/mailgun.bright-softwares.com/messages'
-    request = requests.post(request_url, 
+    request = requests.post(request_url,
                             auth=('api', MAILGUN_APIKEY),
-                            files=attachments, 
+                            files=attachments,
                             data={
                                 'from': sender,
                                 'to': recipients,
