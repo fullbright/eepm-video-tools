@@ -9,7 +9,7 @@
 
 echo "Python location"
 which python
-echo "Starting script youtube uploader"
+echo "Starting script videos uploader"
 scriptdirectory="$(dirname "$0")"
 echo Moving to script directory $scriptdirectory
 cd $(dirname "$0")
@@ -80,32 +80,52 @@ else
 	echo Here is the content of the lockfile
 	cat $lockfilename
 	echo "-------------------------------------------------"
+	echo "---------- STARTING VIDEOS UPLOAD ---------------"
+    echo "-------------------------------------------------"
 	echo ""
 	sleep 90
 
 	## Step 1 -  Launch the youtube uploader
 	youtube_result=$(/usr/local/bin/python youtube-upload.py)
-	echo "Youtube result = $youtube_result"
+	echo "-------------------------------------------------"
+	echo "----------      YOUTUBE UPLOAD    ---------------"
+    echo "-------------------------------------------------"
+	eecho "Youtube result = $youtube_result"
 
 	## Step 2 - Launch the dailymotion uploader + vimeo
-	vimeo_result=$(/usr/local/bin/python vimeo-upload.py)
+	echo "-------------------------------------------------"
+	echo "----------     DAILYMOTION UPLOAD ---------------"
+    echo "-------------------------------------------------"
+	evimeo_result=$(/usr/local/bin/python vimeo-upload.py)
 	echo "Vimeo result = $vimeo_result" 
 
 	## Step 2 - Launch the dailymotion uploader + vimeo
-	dailymotion_result=$(/usr/local/bin/python dailymotion_upload.py)
+	echo "-------------------------------------------------"
+	echo "----------     VIMEO UPLOAD       ---------------"
+    echo "-------------------------------------------------"
+	edailymotion_result=$(/usr/local/bin/python dailymotion_upload.py)
 	echo "Dailymotion result = $dailymotion_result"    
 
 	## Step 3 - Launch the ftp upload for tbn and the others
-	ftp_result="cannot get ftp result since it is a sh file"
+	echo "-------------------------------------------------"
+	echo "----------------- FTP UPLOAD --------------------"
+    echo "-------------------------------------------------"
+	eftp_result="cannot get ftp result since it is a sh file"
     sh ./tbn-videos-upload.sh
 	echo "FTP result = $ftp_result"
 
-	## Step 4 - Launch the emci upload for enseignemoi and emcitv
-	wetransfer_result=$(/usr/local/bin/python Wetransfer.py)
+	## Step 4 - Launch the wetransfer upload for enseignemoi and emcitv
+	echo "-------------------------------------------------"
+	echo "----------- WETRANSFER UPLOAD -------------------"
+    echo "-------------------------------------------------"
+	ewetransfer_result=$(/usr/local/bin/python Wetransfer.py)
 	echo "Wetransfer result = $wetransfer_result"
 
 	## Step 4 - Do some housekeeping
-	housekeeping_result=$(/usr/local/bin/python VideoArchiver.py)
+	echo "-------------------------------------------------"
+	echo "-------------- VIDEOS ARCHIVER ------------------"
+    echo "-------------------------------------------------"
+	ehousekeeping_result=$(/usr/local/bin/python VideoArchiver.py)
 	echo "House keeping result = $housekeeping_result"
 
 	echo "Anyways, let's delete the lock file to be able to execute the script again ... on the next call"
