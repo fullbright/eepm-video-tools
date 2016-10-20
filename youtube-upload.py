@@ -192,14 +192,17 @@ def resumable_upload(insert_request):
 
 def main():
 
+  logger.debug("Starting the youtube upload process")
   errormessage = ""
 
   try:
+    logger.debug("Loading variables ...")
     validextensions = [".mp4", ".mov", ".mp3"]
     configvars = dailymotion.load_variables("eepm_videos_processor.cfg")
     sourcepath = configvars['sourcepath'].rstrip()
     destination = configvars['destination'].rstrip()
 
+    logger.debug("Uploading videos from %s to youtube, then move it to %s" % (sourcepath, destination))
     for filename in glob.glob1(sourcepath, "*.*"):
       (base, ext) = os.path.splitext(filename)
       logger.debug("Checking file %s with extension %s" % (base, ext))
@@ -238,11 +241,11 @@ def main():
       else:
         logger.debug("The file %s 's extension is not part of the valid extensions." % filename)
 
-  except Exception as e:
+  except Exception, e:
     str(e)
     logger.debug("Oh daizy !!! Something bad happened during Youtube processing. Start exception handling.")
-    #errormessage = errormessage + " -> " + e.content
-    errormessage = ""
+    errormessage = repr(e) #.args[1] # message
+    #errormessage = ""
     logger.debug("Something bad happned. The error is %s. Thats all we know" % (errormessage))
     logger.debug("End of exception handling.")
 

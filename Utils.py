@@ -43,29 +43,48 @@ def load_variables(configfile):
     if not os.path.exists(YAMLCONFIGFILE):
         convertIniToYaml()
 
+    dataMap = load_variables_fromyaml()
+
+    # TODO : Remove the line below after stabilizing the yaml config conversion
+    dataMap = load_variables_fromini()
+    return dataMap
+
+def load_variables_fromyaml():
+
     # If there is a yaml configuration file, use it.
-    logger.debug("Checking if a yaml file is available to use it")
+    logger.debug("Checking if a yaml filei %s is available to use it" % (YAMLCONFIGFILE))
+    dataMap = {}
+
     if os.path.exists(YAMLCONFIGFILE):
         logger.debug("Found a yaml file, using it")
         f = open(YAMLCONFIGFILE)
         dataMap = yaml.load(f)
         f.close()
 
-    # TODO : Remove the line below after stabilizing the yaml config conversion
-
     return dataMap
 
-    #configvars = {}
-    ## read the configuration file
-    #with open(configfile) as myfile:
-    #    for line in myfile:
-    #        if not line.startswith('#') and not line.strip() == '' : # ignore line begining with #
-    #            name, var = line.partition("=")[::2]
-    #            #print "Storing variable %s with value %s" % (name, var)
-    #            configvars[name.replace('\\n', '').strip()] = var.replace('\\n', '')
-    #return configvars
+def load_variables_fromini():
+
+    configfile = INICONFIGFILE
+    logger.debug("Loading variables from ini file %s" % (configfile))
+
+    configvars = {}
+
+    if os.path.exists(configfile):
+        logger.debug("Reading the configuration file")
+        with open(configfile) as myfile:
+            for line in myfile:
+                if not line.startswith('#') and not line.strip() == '' : # ignore line begining with #
+                    name, var = line.partition("=")[::2]
+                    #print "Storing variable %s with value %s" % (name, var)
+                    configvars[name.replace('\\n', '').strip()] = var.replace('\\n', '')
+    return configvars
 
 def convertIniToYaml():
+
+    if not os.path.exists(INICONFIGFILE):
+        logger.debug("Ini config file %s does not exist. Exiting !!!" % (INICONFIGFILE))
+        return {}
 
     if not os.path.exists(YAMLCONFIGFILE):
         logger.debug("Configuration file %s doesn't exist. Converting the ini file to yaml" % (YAMLCONFIGFILE))
@@ -184,7 +203,7 @@ def send_email(sender, recipients, subject, htmlmessage):
     """
 
     hostname = socket.gethostname()
-    subject = subject + "(" + hostname + ")"
+    subject = subject + " (" + hostname + ")"
     attachments = {}
     filesToAttach = ["/Applications/eepm-video-tools.app/eepm_videos_processor.log"]
     index = 0
