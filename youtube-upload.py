@@ -239,11 +239,11 @@ def main():
         logger.debug("The file %s 's extension is not part of the valid extensions." % filename)
 
   except Exception as e:
-    #str(e)
+    str(e)
     logger.debug("Oh daizy !!! Something bad happened during Youtube processing. Start exception handling.")
     #errormessage = errormessage + " -> " + e.content
     errormessage = ""
-    logger.debug("Something bad happned. The error is ", errormessage, ". Thats all we know")
+    logger.debug("Something bad happned. The error is %s. Thats all we know" % (errormessage))
     logger.debug("End of exception handling.")
 
   finally:
