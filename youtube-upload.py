@@ -199,7 +199,7 @@ def main():
     logger.debug("Loading variables ...")
     validextensions = [".mp4", ".mov", ".mp3"]
     configvars = dailymotion.load_variables("eepm_videos_processor.cfg")
-    sourcepath = configvars['sourcepath'].rstrip()
+    sourcepath = configvars['youtube.sourcepath'].rstrip()
     destination = configvars['destination'].rstrip()
 
     logger.debug("Uploading videos from %s to youtube, then move it to %s" % (sourcepath, destination))
