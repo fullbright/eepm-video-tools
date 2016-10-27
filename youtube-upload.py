@@ -63,6 +63,7 @@ RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 # For more information about the client_secrets.json file format, see:
 #   https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 CLIENT_SECRETS_FILE = "client_secrets.json"
+CREDENTIALS_STORAGE_FILE = "eepm_videos_youtube_uploader-oauth2.json"
 
 # This OAuth 2.0 access scope allows an application to upload files to the
 # authenticated user's YouTube channel, but doesn't allow other types of access.
@@ -96,14 +97,39 @@ def get_authenticated_service(args):
     scope=YOUTUBE_UPLOAD_SCOPE,
     message=MISSING_CLIENT_SECRETS_MESSAGE)
 
-  storage = Storage("%s-oauth2.json" % sys.argv[0])
+  #storage = Storage("%s-oauth2.json" % sys.argv[0])
+  storage = Storage("eepm_videos_youtube_uploader-oauth2.json")
   credentials = storage.get()
 
   if credentials is None or credentials.invalid:
-    credentials = run_flow(flow, storage, args)
+    #credentials = run_flow(flow, storage, args)
+    #return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
+    #   http=credentials.authorize(httplib2.Http()))
 
-  return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-    http=credentials.authorize(httplib2.Http()))
+    # Step 1: get user code and verification URL
+    # https://developers.google.com/accounts/docs/OAuth2ForDevices#obtainingacode
+    flow_info = flow.step1_get_device_and_user_codes()
+    print("Enter the following code at {0}: {1}".format(flow_info.verification_url,flow_info.user_code))
+    print("Then press enter.")
+    userinput = raw_input()
+    print("The user said : {0}".format(userinput))
+
+    # Step 2: get credentials
+    # https://developers.google.com/accounts/docs/OAuth2ForDevices#obtainingatoken
+    print "Exchanging the tokens ..."
+    credentials = flow.step2_exchange(device_flow_info=flow_info)
+    print("Access token:  {0}".format(credentials.access_token))
+    print("Refresh token: {0}".format(credentials.refresh_token))
+
+    logger.info("Succesfully got access and refresh token. Storing ....")
+    print("Storing credentials")
+    storage.put(credentials)
+
+    # Get YouTube service
+    # https://developers.google.com/accounts/docs/OAuth2ForDevices#callinganapi
+    #youtube = build("youtube", "v3", http=credentials.authorize(httplib2.Http()))
+    youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, http=credentials.authorize(httplib2.Http()))
+    return youtube
 
 def initialize_upload(youtube, options):
   tags = None
@@ -200,7 +226,7 @@ def main():
     validextensions = [".mp4", ".mov", ".mp3"]
     configvars = dailymotion.load_variables("eepm_videos_processor.cfg")
     sourcepath = configvars['youtube.sourcepath'].rstrip()
-    destination = configvars['destination'].rstrip()
+    destination = configvars['youtube.destination'].rstrip()
 
     logger.debug("Uploading videos from %s to youtube, then move it to %s" % (sourcepath, destination))
     for filename in glob.glob1(sourcepath, "*.*"):
