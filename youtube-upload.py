@@ -10,11 +10,13 @@ import logging
 import logging.handlers
 import glob
 import shutil
+import traceback
 
 from apiclient.discovery import build
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
 from oauth2client.client import flow_from_clientsecrets
+from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.file import Storage
 from oauth2client.tools import argparser, run_flow
 import Utils as dailymotion
@@ -93,12 +95,20 @@ VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
 
 def get_authenticated_service(args):
+
   flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
     scope=YOUTUBE_UPLOAD_SCOPE,
     message=MISSING_CLIENT_SECRETS_MESSAGE)
 
+
+  '''
+  CLIENT_ID = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  CLIENT_SECRET = "xxxxxxxxxxxxxxxxxxxxxxx"
+  flow = OAuth2WebServerFlow(CLIENT_ID, CLIENT_SECRET, YOUTUBE_UPLOAD_SCOPE)
+  '''
+
   #storage = Storage("%s-oauth2.json" % sys.argv[0])
-  storage = Storage("eepm_videos_youtube_uploader-oauth2.json")
+  storage = Storage(CREDENTIALS_STORAGE_FILE)
   credentials = storage.get()
 
   if credentials is None or credentials.invalid:
@@ -128,23 +138,23 @@ def get_authenticated_service(args):
     # Get YouTube service
     # https://developers.google.com/accounts/docs/OAuth2ForDevices#callinganapi
     #youtube = build("youtube", "v3", http=credentials.authorize(httplib2.Http()))
-    youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, http=credentials.authorize(httplib2.Http()))
-    return youtube
+  youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, http=credentials.authorize(httplib2.Http()))
+  return youtube
 
 def initialize_upload(youtube, options):
   tags = None
-  if options.keywords:
-    tags = options.keywords.split(",")
+  if options['keywords']:
+    tags = options['keywords'].split(",")
 
   body=dict(
     snippet=dict(
-      title=options.title,
-      description=options.description,
+      title=options['title'],
+      description=options['description'],
       tags=tags,
-      categoryId=options.category
+      categoryId=options['category']
     ),
     status=dict(
-      privacyStatus=options.privacyStatus
+      privacyStatus=options['privacyStatus']
     )
   )
 
@@ -163,8 +173,8 @@ def initialize_upload(youtube, options):
     # practice, but if you're using Python older than 2.6 or if you're
     # running on App Engine, you should set the chunksize to something like
     # 1024 * 1024 (1 megabyte).
-    # media_body=MediaFileUpload(options.file, chunksize=-1, resumable=True)
-    media_body=MediaFileUpload(options.file, chunksize=1024*1024, resumable=True)
+    #media_body=MediaFileUpload(options['file'], chunksize=-1, resumable=True)
+    media_body=MediaFileUpload(options['file'], chunksize=5*256*1024, resumable=True)
   )
 
   resumable_upload(insert_request)
@@ -180,14 +190,21 @@ def resumable_upload(insert_request):
       print "Uploading file..."
       logger.info("Uploading file...")
       status, response = insert_request.next_chunk()
+      print response
 
-      if 'id' in response:
+      if status is not None:
+        print "Uploaded %d%%." % int(status.progress() * 100)
+        logger.debug("Uploaded %d%%." % int(status.progress() * 100))
+
+      '''
+      if response is not None and 'id' in response:
         print "Video id '%s' was successfully uploaded." % response['id']
         logger.debug("Video id '%s' was successfully uploaded." % response['id'])
       else:
         logger.error("The upload failed with an unexpected response: %s" % response)
         logger.debug("The upload failed with an unexpected response: %s" % response)
         return False
+      '''
 
     except HttpError, e:
       if e.resp.status in RETRIABLE_STATUS_CODES:
@@ -213,8 +230,16 @@ def resumable_upload(insert_request):
       logger.debug("Sleeping %f seconds and then retrying..." % sleep_seconds)
       time.sleep(sleep_seconds)
 
-  logger.debug("Upload was successful")
-  return True
+  if response is not None and 'id' in response:
+    print "Video id '%s' was successfully uploaded." % response['id']
+    logger.debug("Video id '%s' was successfully uploaded." % response['id'])
+    logger.debug("Upload was successful")
+    return True
+  else:
+    logger.error("The upload failed with an unexpected response: %s" % response)
+    logger.debug("The upload failed with an unexpected response: %s" % response)
+    return False
+
 
 def main():
 
@@ -235,21 +260,29 @@ def main():
 
       if ext in validextensions:
         srcfile = os.path.join(sourcepath, filename)
+        logger.debug("File %s extension %s is in valid extensions" % (filename, ext))
 
+        logger.debug("Computing the upload informations")
         videotitle = base
         videodescription = "Automatically uploaded %s in private mode." % videotitle
         videokeywords = "Eglise Paris Metropole, Eglise Paris Bastille"
         videocategory = 22
         videoprivacyStatus = "private"
 
-        args=dict(
-          file=srcfile,
-          title=videotitle,
-          description=videodescription,
-          category=videocategory,
-          privacyStatus=videoprivacyStatus,
-          keywords=videokeywords
-        )
+        logger.debug("Building args object")
+        args={
+          "file":srcfile,
+          "title":videotitle,
+          "description":videodescription,
+          "category":videocategory,
+          "privacyStatus":videoprivacyStatus,
+          "keywords":videokeywords
+        }
+
+        logger.debug("args object built.")
+        #logger.debug(dir(args))
+        #setattr(args, 'keywords', videokeywords)
+        #logger.debug(dir(args))
 
         logger.debug("Getting authenticated service...")
         youtube = get_authenticated_service(args)
@@ -272,6 +305,7 @@ def main():
     logger.debug("Oh daizy !!! Something bad happened during Youtube processing. Start exception handling.")
     errormessage = repr(e) #.args[1] # message
     #errormessage = ""
+    traceback.print_exc()
     logger.debug("Something bad happned. The error is %s. Thats all we know" % (errormessage))
     logger.debug("End of exception handling.")
 
