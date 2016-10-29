@@ -16,12 +16,13 @@ import os, requests, sys, json, re, argparse, sys, mimetypes, collections
 import Utils as utils
 import shutil
 import time
+import datetime
 
 WE_TRANSFER_API_URL = "https://www.wetransfer.com/api/v1/transfers"
 CHUNK_SIZE = 5242880
 
 def getTransferId(sender, receivers, message):
-    dataTransferId =  { "channel":"", 
+    dataTransferId =  { "channel":"",
     "expire_in":   "",
     "from":    sender,
     "message": message,
@@ -37,7 +38,7 @@ def getTransferId(sender, receivers, message):
     return response_data["transfer_id"]
 
 def getFileObjectId(transferId, filename, filesize):
-    dataFileObjectId =  { "chunked": "true", 
+    dataFileObjectId =  { "chunked": "true",
     "direct":   "false",
     "filename":    filename,
     "filesize": filesize
@@ -55,7 +56,7 @@ def getChunkInfoForUpload(transferId, fileObjectId, chunkNumber, chunkSize=CHUNK
     "retries" : "0" }
 
     r = requests.put((WE_TRANSFER_API_URL + "/{0}/file_objects/{1}").format(transferId, fileObjectId), data=dataChunk)
-    
+
     return json.loads(r.content)
 
 def drawProgressBar(percent, barLen = 40):
@@ -70,7 +71,7 @@ def drawProgressBar(percent, barLen = 40):
     sys.stdout.flush()
 
 def create_callback(previousChunks, fileSize):
-    
+
     def callback(monitor):
         drawProgressBar(float(previousChunks + monitor.bytes_read)/float(fileSize))
 
@@ -78,13 +79,13 @@ def create_callback(previousChunks, fileSize):
 
 def uploadChunk(chunkInfo, filename, dataBin, fileType, chunkNumber, fileSize):
     url = chunkInfo["url"]
-    
+
     dataChunkUpload = collections.OrderedDict()
     for k, v in chunkInfo["fields"].items():
         dataChunkUpload[k] = v
 
     dataChunkUpload["file"] = (filename, dataBin, fileType)
-    
+
     e = MultipartEncoder(fields=dataChunkUpload)
     m = MultipartEncoderMonitor(e, create_callback(chunkNumber*CHUNK_SIZE, fileSize))
 
@@ -102,15 +103,15 @@ def finalizeChunks(transferId, fileObjectId, partCount):
 
 def finalizeTransfer(transferId):
     print("Finalize transfer")
-    
+
     r = requests.put((WE_TRANSFER_API_URL + "/{0}/finalize").format(transferId))
 
 def cancelTransfer(transferId):
     print("Cancelling transfer")
-    
+
     r = requests.put((WE_TRANSFER_API_URL + "/{0}/cancel").format(transferId))
-    
-    
+
+
 def read_in_chunks(file_object, chunk_size=CHUNK_SIZE):
     """Lazy function (generator) to read a file piece by piece.
     Default chunk size: 5Mo."""
@@ -122,7 +123,7 @@ def read_in_chunks(file_object, chunk_size=CHUNK_SIZE):
 
 def uploadFile(transferId, fileToUpload):
     with open(fileToUpload, 'rb') as f:
-        fileMimeType = "application/octet-stream" 
+        fileMimeType = "application/octet-stream"
         #mimetypes.read_mime_types(f.name)
         fileSize = os.path.getsize(fileToUpload)
         fileName = os.path.basename(fileToUpload)
@@ -133,7 +134,7 @@ def uploadFile(transferId, fileToUpload):
             finalizeChunks(transferId, dataFileObjectId["file_object_id"], 1)
         else:
             chunkNumber = 1
-            
+
             for piece in read_in_chunks(f):
                 chunkInfo = getChunkInfoForUpload(transferId, dataFileObjectId["file_object_id"], chunkNumber, sys.getsizeof(piece))
                 uploadChunk(chunkInfo, fileName, piece, fileMimeType, chunkNumber-1, fileSize)
@@ -146,10 +147,10 @@ def uploadDir(top, transferId, recursive):
        calling the upload function for each regular file'''
 
     for root, dirs, files in os.walk(top):
-        if not recursive:  
-            while len(dirs) > 0:  
-                dirs.pop()  
-        
+        if not recursive:
+            while len(dirs) > 0:
+                dirs.pop()
+
         for name in files:
             print("Upload file : " + os.path.abspath(os.path.join(root, name)))
             uploadFile(transferId, os.path.abspath(os.path.join(root, name)))
@@ -169,10 +170,13 @@ def startAutomaticUpload():
     # Upload that video
     if fileToUpload != None :
 
-        size = os.path.getsize(fileToUpload) / (1024*1024.0) 
-        filedate = time.ctime(os.stat(fileToUpload).st_mtime)  
+        size = os.path.getsize(fileToUpload) / (1024*1024.0)
+        filedate = time.ctime(os.stat(fileToUpload).st_mtime)
         destfileName = utils.path_leaf(fileToUpload)
         destfile = os.path.join(destination, destfileName)
+        if(os.path.isfile(destfile):
+            destfilename = datetime.datetime.now() + "_" + destfilename
+            destfile = os.path.join(destination, destfilename)
 
         print "We are going to process the file %s (%s) MB, date (%s). If upload successfull, will be moved to %s" % (fileToUpload, size, filedate, destfile)
 
@@ -211,7 +215,7 @@ def uploadThisVideo(videopath, sender, receiver, message):
         return False
 
     transferId = getTransferId(sender, receiver, message)
-    
+
     # Upload it
     try:
         if os.path.isfile(videopath):
@@ -220,8 +224,8 @@ def uploadThisVideo(videopath, sender, receiver, message):
             finalizeTransfer(transferId)
             return True
         else:
-            print("The object you are trying to upload is not a file")        
-            
+            print("The object you are trying to upload is not a file")
+
     except KeyboardInterrupt, e:
         print "Oh daizy, an error occured. ", str(e)
         if transferId:
@@ -238,13 +242,13 @@ def main(argv):
         parser.add_argument('-m', '--message', help='message to send')
         parser.add_argument('-R', '--recursive', help='recursive send', action='store_true')
         parser.add_argument('files', help='files or directory to send', nargs='+')
-        
+
         args = parser.parse_args();
         mimetypes.init()
 
         try:
             transferId = getTransferId(args.sender, args.receiver, args.message)
-        
+
             for it in args.files:
                 if os.path.isfile(it):
                     print("Upload file : " + it)
@@ -253,8 +257,8 @@ def main(argv):
                     uploadDir(it, transferId, args.recursive)
                 else:
                     print("Not a file/directory : " + it)
-                    
-            
+
+
             finalizeTransfer(transferId)
         except KeyboardInterrupt:
             print ""
