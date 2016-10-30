@@ -128,6 +128,14 @@ else
 	housekeeping_result=$(/usr/local/bin/python VideoArchiver.py)
 	echo "House keeping result = $housekeeping_result"
 
+    ## Step 5 - Collecto some disk statistics on the server
+	echo "-------------------------------------------------"
+	echo "-------------- STATS COLLECTION -----------------"
+    echo "-------------------------------------------------"
+	echo "Disc space status"
+    df -ach
+
+
 	echo "Anyways, let's delete the lock file to be able to execute the script again ... on the next call"
 	echo Removing the lock file
 	rm -f $lockfilename
