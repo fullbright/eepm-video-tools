@@ -224,7 +224,7 @@ def resumable_upload(insert_request):
       logger.debug("Increasing the retry count to ", retry)
 
       if retry > MAX_RETRIES:
-        logger.error("Oh daizy ! Max retry count is reached. No longer attempting to retry.")
+        logger.error("Oh daizy ! Max retry count %s is reached. No longer attempting to retry." % (MAX_RETRIES))
         return False
 
       max_sleep = 2 ** retry
@@ -232,6 +232,9 @@ def resumable_upload(insert_request):
       print "Sleeping %f seconds and then retrying..." % sleep_seconds
       logger.debug("Sleeping %f seconds and then retrying..." % sleep_seconds)
       time.sleep(sleep_seconds)
+    else:
+      logger.debug("There was no error this time. Resetting retry to zero.")
+      retry = 0
 
   if response is not None and 'id' in response:
     print "Video id '%s' was successfully uploaded." % response['id']
