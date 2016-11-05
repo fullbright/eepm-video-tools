@@ -174,7 +174,7 @@ def initialize_upload(youtube, options):
     # running on App Engine, you should set the chunksize to something like
     # 1024 * 1024 (1 megabyte).
     #media_body=MediaFileUpload(options['file'], chunksize=-1, resumable=True)
-    media_body=MediaFileUpload(options['file'], chunksize=5*256*1024, resumable=True)
+    media_body=MediaFileUpload(options['file'], chunksize=50*256*1024, resumable=True)
   )
 
   resumable_upload(insert_request)
@@ -210,18 +210,21 @@ def resumable_upload(insert_request):
       if e.resp.status in RETRIABLE_STATUS_CODES:
         error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status,
                                                              e.content)
+        logger.debug("A retriable error occured.")
       else:
         raise
     except RETRIABLE_EXCEPTIONS, e:
       error = "A retriable error occurred: %s" % e
+      logger.debug("A retriable error occurred: %s" % e)
 
     if error is not None:
       print error
       logger.debug(error)
       retry += 1
+      logger.debug("Increasing the retry count to ", retry)
 
       if retry > MAX_RETRIES:
-        logger.error("No longer attempting to retry.")
+        logger.error("Oh daizy ! Max retry count %s is reached. No longer attempting to retry." % (MAX_RETRIES))
         return False
 
       max_sleep = 2 ** retry
@@ -229,6 +232,9 @@ def resumable_upload(insert_request):
       print "Sleeping %f seconds and then retrying..." % sleep_seconds
       logger.debug("Sleeping %f seconds and then retrying..." % sleep_seconds)
       time.sleep(sleep_seconds)
+    else:
+      logger.debug("There was no error this time. Resetting retry to zero.")
+      retry = 0
 
   if response is not None and 'id' in response:
     print "Video id '%s' was successfully uploaded." % response['id']

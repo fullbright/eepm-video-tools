@@ -197,6 +197,9 @@ def path_leaf(path):
     head, tail = ntpath.split(path)
     return tail or ntpath.basename(head)
 
+def print_progress(progress, percent):
+    logger.info("[ %s ] %.2f%%" % (progress, percent * 100))
+
 def send_email(sender, recipients, subject, htmlmessage):
     """
         Sends an email using mailgun
