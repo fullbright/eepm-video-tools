@@ -6,6 +6,7 @@ import json
 import requests
 import sys
 import logging
+import dailymotion
 
 # upload the video
 def upload(videofile, title, API_KEY, API_SECRET, USERNAME, PASSWORD):
@@ -30,25 +31,30 @@ def main():
 
     logger = logging.getLogger("eepm_video_processor.DailymotionUpload")
     errormessage = ""
+    nextfiletoprocess_name = ""
 
     try:
         print "--------------- Starting the dailymotion process --------------- "
         validextensions = [".mp4", ".mov"]
-        configvars = load_variables("dailymotion.uploader.cfg")
+        configvars = utils.load_variables("eepm_videos_processor.cfg")
 
-        API_KEY = configvars['dailymotionkey'].rstrip()
-        API_SECRET = configvars['dailymotionsecretkey'].rstrip()
-        USERNAME = configvars['dailymotion_username'].rstrip()
-        PASSWORD = configvars['dailymotion_password'].rstrip()
+        API_KEY = configvars['dailymotion.dailymotionkey'].rstrip()
+        API_SECRET = configvars['dailymotion.dailymotionsecretkey'].rstrip()
+        USERNAME = configvars['dailymotion.dailymotion_username'].rstrip()
+        PASSWORD = configvars['dailymotion.dailymotion_password'].rstrip()
         lockfilename = configvars['lockfilename'].rstrip()
-        sourcepath = configvars['sourcepath'].rstrip()
+        sourcepath = configvars['dailymotion.sourcepath'].rstrip()
 
         # prevent double upload with a lock file
-        check_lock_file(lockfilename)
+        utils.check_lock_file(lockfilename)
 
         # pick the first video and upload it
         print "Processing the source path" , sourcepath
-        nextfiletoprocess = ""
+        nextfiletoprocess = utils.getNextVideoToProcess(sourcepath, validextensions)
+        nextfiletoprocess_name = utils.path_leaf(nextfiletoprocess)
+        nextfiletoprocess_path = os.path.join(sourcepath, nextfiletoprocess_name)
+
+        """
         for name in os.listdir(sourcepath):
             (base, ext) = os.path.splitext(name)
             if ext in validextensions:
@@ -58,6 +64,7 @@ def main():
 
                 print "Break out of the loop"
                 break
+        """
 
         # Got our file, then upload it
         nextfiletoprocess_title = "%s auto uploaded" % nextfiletoprocess_name
@@ -88,18 +95,19 @@ def main():
         removelockfile(lockfilename)
         print "--------------- Dailymotion process ended --------------- "
 
-    except Exception as e:
+    except Exception, e:
         logger.debug("Oh daizy. Something bad happened during dailymotion process. Starting error handling")
-        errormessage = errormessage + " -> " + str(e) # sys.exc_info()[0]
-        logger.debug("Something bad happened. The error is ", sys.exc_info()[0], ". Thats all we know")
+        #errormessage = errormessage + " -> " + str(e) # sys.exc_info()[0]
+        #logger.debug("Something bad happened. The error is ", str(e), ". Thats all we know")
+        print str(e)
         logger.debug("End of error handling.")
 
     finally:
-
+        email_body = "Hello, I have just uploaded the video %s to Youtube and I wanted to notify you. Here are the possible errors : %s I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy." % (nextfiletoprocess_name, errormessage)
         utils.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
             "video@monegliseaparis.fr",
             "Dailymotion : videos processing report",
-            "Hello, I have just uploaded the video $videofile to Youtube and I wanted to notify you. Here are the possible errors : " + errormessage + " I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
+            email_body
             )
 
 if __name__ == '__main__':
