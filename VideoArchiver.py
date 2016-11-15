@@ -85,37 +85,64 @@ if __name__ == '__main__':
     errormessage = ""
     archive_result = ""
     archiver = None
-    count = None
-    size = None
+    count = 0
+    size = 0
 
     try:
         # Load the configuration
         configvars = utils.load_variables("eepm_videos_processor.cfg")
-        source_folder = configvars['archiver.sourcepath'].rstrip()
-        destination_folder = configvars['archiver.destination'].rstrip()
+        #source_folder = configvars['archiver.sourcepath'].rstrip()
+        #destination_folder = configvars['archiver.destination'].rstrip()
 
+        rushs_source_folder = configvars['archiver.rushs.sourcepath'].rstrip()
+        rushs_destination_folder = configvars['archiver.rushs.destination'].rstrip()
 
-        #argparser.add_argument("--source", required=True, help="The source folder full path")
-        #argparser.add_argument("--destination", required=True, help="The destination folder full path")
-        #args = argparser.parse_args()
+        youtube_source_folder = configvars['archiver.youtube.sourcepath'].rstrip()
+        youtube_destination_folder = configvars['archiver.youtube.destination'].rstrip()
 
-        #if not os.path.exists(args.source):
-        #    exit("Please specify a valid source folder using the --source= parameter.")
+        tbn_source_folder = configvars['archiver.tbn.sourcepath'].rstrip()
+        tbn_destination_folder = configvars['archiver.tbn.destination'].rstrip()
 
-        #if not os.path.exists(args.destination):
-        #    exit("Please specify a valid destination folder using the --destination= parameter.")
+        emci_source_folder = configvars['archiver.emci.sourcepath'].rstrip()
+        emci_destination_folder = configvars['archiver.emci.destination'].rstrip()
 
-        #source_folder = args.source
-        #destination_folder = args.destination
+        audio_source_folder = configvars['archiver.audio.sourcepath'].rstrip()
+        audio_destination_folder = configvars['archiver.audio.destination'].rstrip()
 
-        # Start the archiver and archive files
-        archiver = VideoArchiver(source_folder, destination_folder)
-        count, size = archiver.process()
+        # Archive the rushs videos
+        archiver = VideoArchiver(rushs_source_folder, rushs_destination_folder)
+        count_tmp, size_tmp = archiver.process()
+        count += count_tmp
+        size += size_tmp
+
+        # Archive the youtube videos
+        archiver = VideoArchiver(youtube_source_folder, youtube_destination_folder)
+        count_tmp, size_tmp = archiver.process()
+        count += count_tmp
+        size += size_tmp
+
+        # Archive tbn videos
+        archiver = VideoArchiver(tbn_source_folder, tbn_destination_folder)
+        count_tmp, size_tmp = archiver.process()
+        count += count_tmp
+        size += size_tmp
+
+        # Archive emci videos
+        archiver = VideoArchiver(emci_source_folder, emci_destination_folder)
+        count_tmp, size_tmp = archiver.process()
+        count += count_tmp
+        size += size_tmp
+
+        # Archive audio files
+        archiver = VideoArchiver(audio_source_folder, audio_destination_folder)
+        count_tmp, size_tmp = archiver.process()
+        count += count_tmp
+        size += size_tmp
 
     except Exception as e:
-        errormessage = errormessage + " -> " + str(e)
-        errormessage = "unknown"
-        archiver.log(0, "Something bad happned. The error is ", errormessage, ". Thats all we know")
+        errormessage = errormessage + " -> %s" % (str(e))
+        #errormessage = "unknown"
+        archiver.log(0, "Something bad happned. The error is %s. Thats all we know" % (errormessage))
 
     finally:
 
