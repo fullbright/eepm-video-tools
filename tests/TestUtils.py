@@ -7,4 +7,4 @@ class TestUtils(unittest.TestCase):
 		self.assertIsNotNone(variables)
 		assert variables is not None
 
-unittest.main()
+#unittest.main()
