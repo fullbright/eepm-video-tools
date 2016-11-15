@@ -5,7 +5,6 @@ ftp.uploader.cfg
 .DS_Store
 archives/
 archives2/
-tests/
 *.mp4
 *.mov
 *.pyc
