@@ -35,18 +35,19 @@ def main():
 
     logger = logging.getLogger("eepm_video_processor.VimeoUpload")
     errormessage = ""
+    nextfiletoprocess_name = ""
 
     try:
         print "-------  Starting Vimeo upload --------"
         validextensions = [".mp4", ".mov"]
         configvars = utils.load_variables("vimeo.uploader.cfg")
 
-        API_KEY = configvars['vimeokey'].rstrip()
-        API_SECRET = configvars['vimeosecretkey'].rstrip()
-        API_TOCKEN = configvars['vimeoaccesstoken'].rstrip()
+        API_KEY = configvars['vimeo.vimeokey'].rstrip()
+        API_SECRET = configvars['vimeo.vimeosecretkey'].rstrip()
+        API_TOCKEN = configvars['vimeo.vimeoaccesstoken'].rstrip()
         lockfilename = configvars['lockfilename'].rstrip()
-        tokenfilename = configvars['tokenfilename'].rstrip()
-        sourcepath = configvars['sourcepath'].rstrip()
+        tokenfilename = configvars['vimeo.tokenfilename'].rstrip()
+        sourcepath = configvars['vimeo.sourcepath'].rstrip()
 
         # prevent double upload with a lock file
         utils.check_lock_file(lockfilename)
@@ -108,16 +109,17 @@ def main():
         print "-------  Vimeo upload ended --------"
     except Exception, e:
         logger.debug("Oh daisy !!! Something wrong happened during vimeo video processing. Starting error handling ...")
-        errormessage = errormessage + " -> " + str(e)
-        logger.debug("Something bad happned. The error is ", errormessage, ". Thats all we know")
+        errormessage = errormessage + " -> %s" % (str(e))
+        logger.debug("Something bad happned. The error is %s. Thats all we know" % (errormessage))
         logger.debug("End of error handling")
 
     finally:
 
+        email_body = "Hello, I have just uploaded the video %s to Vimeo and I wanted to notify you. Here are the possible errors : %s I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy." % (nextfiletoprocess_name, errormessage)
         utils.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
             "video@monegliseaparis.fr",
             "Vimeo upload : videos processing report",
-            "Hello, I have just uploaded the video $videofile to Youtube and I wanted to notify you. Here are the possible errors : " + errormessage + " I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
+            email_body
             )
 
 if __name__ == '__main__':
