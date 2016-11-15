@@ -174,7 +174,7 @@ def startAutomaticUpload():
         filedate = time.ctime(os.stat(fileToUpload).st_mtime)
         destfileName = utils.path_leaf(fileToUpload)
         destfile = os.path.join(destination, destfileName)
-        if(os.path.isfile(destfile):
+        if(os.path.isfile(destfile)):
             destfilename = datetime.datetime.now() + "_" + destfilename
             destfile = os.path.join(destination, destfilename)
 
