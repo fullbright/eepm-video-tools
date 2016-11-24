@@ -177,7 +177,7 @@ def initialize_upload(youtube, options):
     media_body=MediaFileUpload(options['file'], chunksize=50*256*1024, resumable=True)
   )
 
-  resumable_upload(insert_request)
+  return resumable_upload(insert_request)
 
 # This method implements an exponential backoff strategy to resume a
 # failed upload.
@@ -221,7 +221,7 @@ def resumable_upload(insert_request):
       print error
       logger.debug(error)
       retry += 1
-      logger.debug("Increasing the retry count to ", retry)
+      logger.debug("Increasing the retry count to %d" % (retry))
 
       if retry > MAX_RETRIES:
         logger.error("Oh daizy ! Max retry count %s is reached. No longer attempting to retry." % (MAX_RETRIES))
@@ -298,7 +298,19 @@ def main():
 
         try:
           logger.debug("Initializing upload ...")
-          initialize_upload(youtube, args)
+          uploaded = initialize_upload(youtube, args)
+
+          if uploaded :
+            print "Upload was successfull."
+            # move the file to the archive folder
+            dst = os.path.join(destination, filename)
+            print "Moving video file from %s to %s" % (srcfile, dst)
+            os.rename(srcfile, dst)
+
+          else:
+            print "%s was not found in %s" % (srcfile, response)
+            print "Upload failed. File will not be moved to the archive so we can process it next time."
+
 
         except HttpError, e:
           errormessage = errormessage + " -> " + e.content
