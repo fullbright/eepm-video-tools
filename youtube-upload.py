@@ -42,7 +42,7 @@ logger.addHandler(fh)
 httplib2.RETRIES = 1
 
 # Maximum number of times to retry before giving up.
-MAX_RETRIES = 50
+MAX_RETRIES = 10
 
 # Always retry when these exceptions are raised.
 RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
@@ -229,8 +229,10 @@ def resumable_upload(insert_request):
 
       max_sleep = 2 ** retry
       sleep_seconds = random.random() * max_sleep
-      print "Sleeping %f seconds and then retrying..." % sleep_seconds
-      logger.debug("Sleeping %f seconds and then retrying..." % sleep_seconds)
+      m, s = divmod(sleep_seconds, 60)
+      h, m = divmod(m, 60)
+      print "Sleeping %f seconds (%d:%02d:%02d) and then retrying..." % (sleep_seconds, h, m, s)
+      logger.debug("Sleeping %f seconds (%d:%02d:%02d) and then retrying..." % (sleep_seconds, h, m, s))
       time.sleep(sleep_seconds)
     else:
       logger.debug("There was no error this time. Resetting retry to zero.")
