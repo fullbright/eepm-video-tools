@@ -221,7 +221,7 @@ def resumable_upload(insert_request):
       print error
       logger.debug(error)
       retry += 1
-      logger.debug("Increasing the retry count to %d" % (retry))
+      logger.debug("Increasing the retry count to %d/%d" % (retry, MAX_RETRIES))
 
       if retry > MAX_RETRIES:
         logger.error("Oh daizy ! Max retry count %s is reached. No longer attempting to retry." % (MAX_RETRIES))
