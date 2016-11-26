@@ -7,8 +7,23 @@ import requests
 import logging
 import Utils as utils
 
+## Setup logging
+logger = logging.getLogger('eepm_video_processor.VimeoUpload')
+logger.setLevel(logging.DEBUG)
+current_script_file = os.path.realpath(__file__)
+current_script_dir = os.path.abspath(os.path.join(current_script_file, os.pardir))
+fh = logging.handlers.RotatingFileHandler(
+              "%s/eepm_videos_processor.log" % (current_script_dir),
+              maxBytes=20000000, backupCount=5)
+#logging.FileHandler("%s/eepm_video_processor.log" % (current_script_dir))
+fh.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+logger.addHandler(fh)
+
 def store_token(token, filename):
     print "Writing vimeo access tocken to", filename
+    logger.debug("Writing vimeo access tocken to %s" % (filename))
     tokenfile = open(filename, "w")
     tokenfile.write("%s" % token)
     tokenfile.close()
@@ -24,16 +39,18 @@ def set_video_title(access_token, video_uri, title, description, privacy):
     payload = {'name': title, 'description': description, 'privacy.view': privacy}
     video_full_url = "https://api.vimeo.com" + video_uri
     print "Set video title. Url is %s and payload is %s" % (video_full_url, payload)
+    logger.debug("Set video title. Url is %s and payload is %s" % (video_full_url, payload))
 
     #print "Setting access_token %s in the Authorization header" % access_token
     auth_headers = {'Authorization': 'Bearer ' + access_token}
     print auth_headers
+    logger.debug("Auth headers : " % (auth_headers))
 
     return requests.patch("https://api.vimeo.com" + video_uri, data=payload, headers=auth_headers)
 
 def main():
 
-    logger = logging.getLogger("eepm_video_processor.VimeoUpload")
+    #logger = logging.getLogger("eepm_video_processor.VimeoUpload")
     errormessage = ""
     nextfiletoprocess_name = ""
 
@@ -59,10 +76,12 @@ def main():
             (base, ext) = os.path.splitext(name)
             if ext in validextensions:
                 print " === Got the one to process : ", os.path.join(sourcepath, name)
+                logger.debug(" === Got the one to process : %s" % os.path.join(sourcepath, name))
                 nextfiletoprocess_name = name
                 nextfiletoprocess_path = os.path.join(sourcepath, name)
 
                 print "Break out of the loop"
+                logger.debug("Break out of the loop")
                 break
 
         # Got our file, then upload it
@@ -74,15 +93,20 @@ def main():
 
         if about_me.status_code == 200 :
             print "I can connect to the account. About me status code is %s and the name is %s" % (about_me.status_code, about_me.json())
+            logger.debug("I can connect to the account. About me status code is %s and the name is %s" % (about_me.status_code, about_me.json()))
         else:
             print "We are not authenticated. Status code is %s", about_me.status_code
+            logger.debug("We are not authenticated. Status code is %s", about_me.status_code)
 
         print "Uploading video ", nextfiletoprocess_path
+        logger.debug("Uploading video " % (nextfiletoprocess_path))
         video_uri = v.upload(nextfiletoprocess_path)
         #video_uri = '/videos/152054345'
         print "Done. Video uri is", video_uri
+        logger.debug("Done. Video uri is" % (video_uri))
 
         print "Setting the title of the video %s to %s" % (video_uri, nextfiletoprocess_title)
+        logger.debug("Setting the title of the video %s to %s" % (video_uri, nextfiletoprocess_title))
         #response = v.patch(video_uri, {'name': 'nextfiletoprocess_title', 'description': 'This is the videos description.'})
         response = set_video_title(v.token, video_uri, nextfiletoprocess_title, nextfiletoprocess_description, 'nobody')
 
@@ -91,15 +115,20 @@ def main():
 
         if response.status_code == 200 :
             print "Upload and metadata set was successfull. Status code value was %s" % (response.status_code)
+            logger.debug("Upload and metadata set was successfull. Status code value was %s" % (response.status_code))
             # move the file to the archive folder
-            destinationpath = configvars['destination'].rstrip()
-            dst = os.path.join(destinationpath, name)
-            print "Moving video file from %s to %s" % (nextfiletoprocess_path, dst)
-            os.rename(nextfiletoprocess_path, dst)
+            destinationpath = configvars['vimeo.destination'].rstrip()
+            utils.move_to_destination(sourcepath, destinationpath, name)
+            #dst = os.path.join(destinationpath, name)
+            #print "Moving video file from %s to %s" % (nextfiletoprocess_path, dst)
+            #logger.debug("Moving video file from %s to %s" % (nextfiletoprocess_path, dst))
+            #os.rename(nextfiletoprocess_path, dst)
 
         else:
             print "Upload failed. File will not be moved to the archive so we can process it next time."
+            logger.debug("Upload failed. File will not be moved to the archive so we can process it next time.")
             print "Status code was ", response.status_code
+            logger.debug("Status code was " % (response.status_code))
 
 
 
