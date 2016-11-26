@@ -94,14 +94,14 @@ else
 
 	## Step 2 - Launch the dailymotion uploader + vimeo
 	echo "-------------------------------------------------"
-	echo "----------     DAILYMOTION UPLOAD ---------------"
+	echo "----------     VIMEO UPLOAD ---------------"
     echo "-------------------------------------------------"
 	vimeo_result=$(/usr/local/bin/python vimeo-upload.py)
 	echo "Vimeo result = $vimeo_result" 
 
 	## Step 2 - Launch the dailymotion uploader + vimeo
 	echo "-------------------------------------------------"
-	echo "----------     VIMEO UPLOAD       ---------------"
+	echo "----------     DAILYMOTION UPLOAD       ---------------"
     echo "-------------------------------------------------"
 	dailymotion_result=$(/usr/local/bin/python dailymotion_upload.py)
 	echo "Dailymotion result = $dailymotion_result"    
