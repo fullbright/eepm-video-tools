@@ -42,7 +42,7 @@ logger.addHandler(fh)
 httplib2.RETRIES = 1
 
 # Maximum number of times to retry before giving up.
-MAX_RETRIES = 10
+MAX_RETRIES = 20
 
 # Always retry when these exceptions are raised.
 RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
@@ -308,7 +308,6 @@ def main():
             os.rename(srcfile, dst)
 
           else:
-            print "%s was not found in %s" % (srcfile, response)
             print "Upload failed. File will not be moved to the archive so we can process it next time."
 
 
