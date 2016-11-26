@@ -183,14 +183,11 @@ def startAutomaticUpload():
         uploadResult = uploadThisVideo(fileToUpload, "video@monegliseaparis.fr", "afanousergio@yahoo.fr", "EEPM Video %s" % fileToUpload)
 
         if uploadResult == True:
-            print "Move the processed file to the destination"
-            print "Moving %s to %s" % (fileToUpload, destfile)
+            logger.debug("Move the processed file to the destination")
+            logger.debug("Moving %s to %s" % (fileToUpload, destfile))
 
-            if not os.path.isfile(destfile):
-                size = os.path.getsize(fileToUpload) / (1024*1024.0)
-                shutil.move(fileToUpload, destfile)
-            else:
-                print "Cannot move. Destination file exists."
+            utils.move_to_destination(sourcepath, destination, destfileName)
+            
         else:
             print "Upload failed :( Sorry"
 
