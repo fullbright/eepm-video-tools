@@ -106,6 +106,27 @@ def convertIniToYaml():
         logger.debug("Configuration file %s exist. No conversion needed." % (YAMLCONFIGFILE))
 
 
+def move_to_destination(sourcepath, destinationpath, filename):
+    src = os.path.join(sourcepath, filename)
+    dst = os.path.join(destinationpath, filename)
+    size = os.path.getsize(src) / (1024*1024.0)
+    logger.debug("Moving video file from %s to %s (%s)" % (src, dst, size))
+
+    try:
+        if not os.path.isfile(destfile):        
+            os.rename(src, dst)
+            #shutil.move(fileToUpload, destfile)
+            logger.debug("File %s was successfully moved." % (filename))
+        else:
+            logger.debug("Cannot move. Destination file exists.")
+    except Exception as e:
+        logger.error("Error while move file %s" % (filename))
+    else:
+        pass
+    finally:
+        logger.debug("File moving process finished.")
+    
+
 
 
 def check_lock_file(lockfilename):
