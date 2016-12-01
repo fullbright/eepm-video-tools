@@ -120,11 +120,16 @@ At the very end of the developement, run these to save your work.
 Code improvements
 
  - [X] Better logging. Logrotate the logs
- - [ ] Merge all the configuration files in one
- - [ ] Change the configuration file format to json or yaml, python should be able to read it
+ - [X] Merge all the configuration files in one
+ - [-] Change the configuration file format to json or yaml, python should be able to read it
  - [ ] A mailing class/function to handle all the emailing, logs to attach, text formating
- - [ ] A main script that handles the move to the directpry where the scripts and logs are located
- - [ ] A main script with command line options to trigger tasks directly.
+ - [X] A main script that handles the move to the directpry where the scripts and logs are located
+ - [X] A main script with command line options to trigger tasks directly.
  - [ ] Write a file renamer function to automatically rename emci files before uploading them. Read the name from a remote database
  - [ ] Clean the code
  - [ ] Better logging : separate logs into functional units 
+ - [ ] Add the upload to [ftp from python](https://gist.github.com/rms1000watt/3677cf3f29b2102c6fd03a018dcd333e)
+ - [ ] 
+ - [ ] 
+ - [ ] 
+ - [ ] 
