@@ -42,7 +42,7 @@ logger.addHandler(fh)
 httplib2.RETRIES = 1
 
 # Maximum number of times to retry before giving up.
-MAX_RETRIES = 20
+MAX_RETRIES = 11
 
 # Always retry when these exceptions are raised.
 RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
