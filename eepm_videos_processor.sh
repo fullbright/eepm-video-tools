@@ -89,8 +89,9 @@ else
 	echo "-------------------------------------------------"
 	echo "----------      YOUTUBE UPLOAD    ---------------"
     echo "-------------------------------------------------"
-	youtube_result=$(/usr/local/bin/python youtube-upload.py)
-    echo "Youtube result = $youtube_result"
+	echo "Suspend youtube videos upload. Team will manually upload it"
+	##youtube_result=$(/usr/local/bin/python youtube-upload.py)
+    #echo "Youtube result = $youtube_result"
 
 	## Step 2 - Launch the dailymotion uploader + vimeo
 	echo "-------------------------------------------------"
@@ -108,7 +109,7 @@ else
 
 	## Step 3 - Launch the ftp upload for tbn and the others
 	echo "-------------------------------------------------"
-	echo "----------------- FTP UPLOAD --------------------"
+	echo "----------------- TBN UPLOAD --------------------"
     echo "-------------------------------------------------"
 	ftp_result="cannot get ftp result since it is a sh file"
     sh ./tbn-videos-upload.sh
