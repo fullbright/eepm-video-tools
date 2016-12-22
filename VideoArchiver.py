@@ -61,6 +61,7 @@ class VideoArchiver():
         self.log(0, "Processing the orginal %s to the destination %s" % (self.original_folder, self.new_folder))
 
         for filename in glob.glob1(self.original_folder, "*.*"):
+            self.log(0,"Processing : '" + filename + "', file date : %s" % filedate)
             srcfile = os.path.join(self.original_folder, filename)
             destfile = os.path.join(self.new_folder, filename)
             (base, ext) = os.path.splitext(srcfile)
