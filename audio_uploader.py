@@ -8,7 +8,6 @@ import logging.handlers
 import httplib
 import httplib2
 import Utils as utils
-from slugify import slugify
 
 ## Setup logging
 logger = logging.getLogger('eepm_video_processor.FtpUpload')
@@ -78,6 +77,17 @@ def main():
     ftpserver = configvars['ftp.ftpserver'].rstrip()
     ftpuser = configvars['ftp.ftpuser'].rstrip()
     ftppass = configvars['ftp.ftppass'].rstrip()
+    ftpfolder = "/"
+
+    # Clean the ftp server name
+    # Sometime written in the configuration file as 
+    if ftpserver.startswith('ftp://'):
+        ftpserver = ftpserver.replace('ftp://', '')
+
+    slashPosition = ftpserver.find("/")
+    if slashPosition != -1:
+        ftpfolder = ftpserver[slashPosition:]
+        ftpserver = ftpserver[0:slashPosition]
 
     # Get the next video from the source path
     validextensions = [".mp3"]
@@ -98,7 +108,7 @@ def main():
 
         print "We are going to process the file %s (%s) MB, date (%s). If upload successfull, will be moved to %s" % (fileToUpload, size, filedate, destfile)
 
-        uploadResult = utils.uploadThisToFtp(ftpserver, ftpuser, ftppass, fileToUpload)
+        uploadResult = utils.uploadThisToFtp(ftpserver, ftpuser, ftppass, fileToUpload, ftpfolder)
 
         if uploadResult == True:
             logger.debug("Move the processed file to the destination")

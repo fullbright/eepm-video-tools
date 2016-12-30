@@ -57,15 +57,19 @@ class FtpUploadTracker:
             print("%d - %s percent complete (%d/%d)" % (self.counter, str(percentComplete), self.sizeWritten, self.totalSize))
             logger.debug("%d - %s percent complete (%d/%d)" % (self.counter, str(percentComplete), self.sizeWritten, self.totalSize))
 
-def uploadThisToFtp(ftpserver, ftpuser, ftppass, filepath):
+def uploadThisToFtp(ftpserver, ftpuser, ftppass, filepath, ftpfolder):
+
+    # Handle ending slash issue in the ftp folder
+    if ftpfolder.endswith("/"):
+        ftpfolder = ftpfolder[:-1]
 
     destfileName = path_leaf(filepath)
     (base, ext) = os.path.splitext(destfileName)
     baseSlugified = slugify(base)
-    ftpfilename = baseSlugified + ext
+    ftpfilename = ftpfolder + '/' + destfileName #baseSlugified + ext
 
 
-    logger.debug("Uploading %s to %s using credentials %s and %s" % (filepath, ftpserver, ftpuser, ftppass))
+    logger.debug("Uploading %s to %s (folder %s) using credentials %s and %s" % (filepath, ftpserver, ftpfolder, ftpuser, ftppass))
     logger.debug("FTP File name is : %s" % (ftpfilename))
     ftp = FTP(ftpserver)
     ftp.login(ftpuser, ftppass)
@@ -83,7 +87,7 @@ def uploadThisToFtp(ftpserver, ftpuser, ftppass, filepath):
     totalSize = os.path.getsize(filepath)
     print('Total file size : ' + str(round(totalSize / 1024 / 1024 ,1)) + ' Mb')
     uploadTracker = FtpUploadTracker(int(totalSize))
-    ftp.storbinary("STOR %s" %(ftpfilename), open(filepath, 'rb'), 1024, uploadTracker.handle)
+    ftp.storbinary("STOR %s" % (ftpfilename), open(filepath, 'rb'), 1024, uploadTracker.handle)
     ftp.close()
     return True
 

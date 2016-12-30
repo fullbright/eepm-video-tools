@@ -122,14 +122,21 @@ else
 	wetransfer_result=$(/usr/local/bin/python Wetransfer.py)
 	echo "Wetransfer result = $wetransfer_result"
 
-	## Step 4 - Do some housekeeping
+	## Step 5 - Launch the audio files upload for podcasts
+	echo "-------------------------------------------------"
+	echo "----------- AUDIO UPLOAD -------------------"
+    echo "-------------------------------------------------"
+	audioupload_result=$(/usr/local/bin/python audio_uploader.py)
+	echo "Audio upload result = $audioupload_result"
+
+	## Step 6 - Do some housekeeping
 	echo "-------------------------------------------------"
 	echo "-------------- VIDEOS ARCHIVER ------------------"
     echo "-------------------------------------------------"
 	housekeeping_result=$(/usr/local/bin/python VideoArchiver.py)
 	echo "House keeping result = $housekeeping_result"
 
-    ## Step 5 - Collecto some disk statistics on the server
+    ## Step 7 - Collecto some disk statistics on the server
 	echo "-------------------------------------------------"
 	echo "-------------- STATS COLLECTION -----------------"
     echo "-------------------------------------------------"
