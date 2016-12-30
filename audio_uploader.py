@@ -1,6 +1,7 @@
 import os.path
 import time
 from ftplib import FTP, FTP_TLS
+import ftplib
 
 import logging
 import logging.handlers
@@ -30,7 +31,8 @@ MAX_RETRIES = 11
 RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
   httplib.IncompleteRead, httplib.ImproperConnectionState,
   httplib.CannotSendRequest, httplib.CannotSendHeader,
-  httplib.ResponseNotReady, httplib.BadStatusLine)
+  httplib.ResponseNotReady, httplib.BadStatusLine, ftplib.error_reply,
+  ftplib.error_temp, ftplib.error_proto)
 
 
 # Init
@@ -44,51 +46,27 @@ sizeWritten = 0
 #     percentComplete = sizeWritten / totalSize
 #     print(str(percentComplete) + " percent complete")
 
-class FtpUploadTracker:
-    sizeWritten = 0
-    totalSize = 0
-    lastShownPercent = 0
-    counter = 0
+# class FtpUploadTracker:
+#     sizeWritten = 0
+#     totalSize = 0
+#     lastShownPercent = 0
+#     counter = 0
 
-    def __init__(self, totalSize):
-        self.totalSize = totalSize
-        self.counter = 0
+#     def __init__(self, totalSize):
+#         self.totalSize = totalSize
+#         self.counter = 0
 
-    def handle(self, block):
-    	self.counter += 1
-        self.sizeWritten += 1024
-        #percentComplete = round((self.sizeWritten / self.totalSize) * 100)
-        percentComplete = round((self.sizeWritten / float(self.totalSize)) * 100)
+#     def handle(self, block):
+#     	self.counter += 1
+#         self.sizeWritten += 1024
+#         #percentComplete = round((self.sizeWritten / self.totalSize) * 100)
+#         percentComplete = round((self.sizeWritten / float(self.totalSize)) * 100)
         
 
-        if (self.lastShownPercent != percentComplete):
-            self.lastShownPercent = percentComplete
-            print("%d - %s percent complete (%d/%d)" % (self.counter, str(percentComplete), self.sizeWritten, self.totalSize))
-            logger.debug("%d - %s percent complete (%d/%d)" % (self.counter, str(percentComplete), self.sizeWritten, self.totalSize))
-
-
-
-def uploadThisToFtp(ftpserver, ftpuser, ftppass, filepath):
-
-	destfileName = utils.path_leaf(filepath)
-	(base, ext) = os.path.splitext(destfileName)
-	baseSlugified = slugify(base)
-	ftpfilename = baseSlugified + ext
-
-
-	logger.debug("Uploading %s to %s using credentials %s and %s" % (filepath, ftpserver, ftpuser, ftppass))
-	logger.debug("FTP File name is : %s" % (ftpfilename))
-	ftp = FTP(ftpserver)
-	ftp.login(ftpuser, ftppass)
-	# ftps.prot_p()
-	#ftp.storlines("STOR %s" %('franck_lefillatre.mp4'), open('Franck Lefillatre.mp4'))
-
-	totalSize = os.path.getsize(filepath)
-	print('Total file size : ' + str(round(totalSize / 1024 / 1024 ,1)) + ' Mb')
-	uploadTracker = FtpUploadTracker(int(totalSize))
-	ftp.storbinary("STOR %s" %(ftpfilename), open(filepath, 'rb'), 1024, uploadTracker.handle)
-	ftp.close()
-	return True
+#         if (self.lastShownPercent != percentComplete):
+#             self.lastShownPercent = percentComplete
+#             print("%d - %s percent complete (%d/%d)" % (self.counter, str(percentComplete), self.sizeWritten, self.totalSize))
+#             logger.debug("%d - %s percent complete (%d/%d)" % (self.counter, str(percentComplete), self.sizeWritten, self.totalSize))
 
 
 def main():
@@ -120,7 +98,7 @@ def main():
 
         print "We are going to process the file %s (%s) MB, date (%s). If upload successfull, will be moved to %s" % (fileToUpload, size, filedate, destfile)
 
-        uploadResult = uploadThisToFtp(ftpserver, ftpuser, ftppass, fileToUpload)
+        uploadResult = utils.uploadThisToFtp(ftpserver, ftpuser, ftppass, fileToUpload)
 
         if uploadResult == True:
             logger.debug("Move the processed file to the destination")
