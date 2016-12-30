@@ -32,6 +32,18 @@ fh.setFormatter(formatter)
 logger.addHandler(fh)
 
 
+
+def get_credential_path():
+    #home_dir = os.path.expanduser('~')
+    #credential_dir = os.path.join(home_dir, '.credentials')
+    #if not os.path.exists(credential_dir):
+    #    os.makedirs(credential_dir)
+    #credential_path = os.path.join(credential_dir,
+    #                               'sheets.googleapis.com-python-quickstart.json')
+    credential_path = "eepm_videos_youtube_uploader-oauth2.json"
+    logger.debug("Getting credential path %s" % credential_path)
+    return credential_path
+
 # load the variables
 
 def load_variables(configfile):
