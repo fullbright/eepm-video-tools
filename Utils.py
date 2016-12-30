@@ -33,6 +33,52 @@ logger.addHandler(fh)
 
 
 
+class FtpUploadTracker:
+    sizeWritten = 0
+    totalSize = 0
+    lastShownPercent = 0
+    counter = 0
+
+    def __init__(self, totalSize):
+        self.totalSize = totalSize
+        self.counter = 0
+
+    def handle(self, block):
+        self.counter += 1
+        self.sizeWritten += 1024
+        #percentComplete = round((self.sizeWritten / self.totalSize) * 100)
+        percentComplete = round((self.sizeWritten / float(self.totalSize)) * 100)
+        
+
+        if (self.lastShownPercent != percentComplete):
+            self.lastShownPercent = percentComplete
+            print("%d - %s percent complete (%d/%d)" % (self.counter, str(percentComplete), self.sizeWritten, self.totalSize))
+            logger.debug("%d - %s percent complete (%d/%d)" % (self.counter, str(percentComplete), self.sizeWritten, self.totalSize))
+
+
+
+def uploadThisToFtp(ftpserver, ftpuser, ftppass, filepath):
+
+    destfileName = utils.path_leaf(filepath)
+    (base, ext) = os.path.splitext(destfileName)
+    baseSlugified = slugify(base)
+    ftpfilename = baseSlugified + ext
+
+
+    logger.debug("Uploading %s to %s using credentials %s and %s" % (filepath, ftpserver, ftpuser, ftppass))
+    logger.debug("FTP File name is : %s" % (ftpfilename))
+    ftp = FTP(ftpserver)
+    ftp.login(ftpuser, ftppass)
+    # ftps.prot_p()
+    #ftp.storlines("STOR %s" %('franck_lefillatre.mp4'), open('Franck Lefillatre.mp4'))
+
+    totalSize = os.path.getsize(filepath)
+    print('Total file size : ' + str(round(totalSize / 1024 / 1024 ,1)) + ' Mb')
+    uploadTracker = FtpUploadTracker(int(totalSize))
+    ftp.storbinary("STOR %s" %(ftpfilename), open(filepath, 'rb'), 1024, uploadTracker.handle)
+    ftp.close()
+    return True
+
 def get_credential_path():
     #home_dir = os.path.expanduser('~')
     #credential_dir = os.path.join(home_dir, '.credentials')
@@ -125,14 +171,14 @@ def move_to_destination(sourcepath, destinationpath, filename):
     logger.debug("Moving video file from %s to %s (%s)" % (src, dst, size))
 
     try:
-        if not os.path.isfile(destfile):        
+        if not os.path.isfile(dst):        
             os.rename(src, dst)
             #shutil.move(fileToUpload, destfile)
             logger.debug("File %s was successfully moved." % (filename))
         else:
             logger.debug("Cannot move. Destination file exists.")
     except Exception as e:
-        logger.error("Error while move file %s" % (filename))
+        logger.error("Error while move file %s, %s" % (filename, str(e)))
     else:
         pass
     finally:
