@@ -17,6 +17,8 @@ import gspread
 
 import httplib2
 import os
+from os import listdir
+from os.path import isfile, join
 
 from apiclient import discovery
 import oauth2client
@@ -77,41 +79,53 @@ def main2():
     errormessage = ""
 
     validextensions = [".mp4", ".mov"]
-    fileToUpload = utils.getNextVideoToProcess(sourcepath, validextensions)
-    fileName = utils.path_leaf(fileToUpload)
+    #fileToUpload = utils.getNextVideoToProcess(sourcepath, validextensions)
+    #fileName = utils.path_leaf(fileToUpload)
     
+    
+    onlyfiles = [f for f in listdir(sourcepath) if isfile(join(sourcepath, f))]
+    #print(onlyfiles)
+
+
     logger.debug("Starting the process ...")    
     list_of_lists = get_list_of_videos()
 
-    logger.debug("Searching for %s in the spreadsheet ..." % (fileName))
+    #logger.debug("Searching for %s in the spreadsheet ..." % (fileName))
     for currentList in list_of_lists:
         videoFileName = currentList[0]
         videoTitle = currentList[1]
         logger.debug("Processing video %s" % videoFileName)
 
-        if videoFileName == fileName:
-            logger.debug("Bingo !!! Found one corresponding to %s" % videoFileName)
-            emciFormatedName = utils.getEmciformatedname(videoFileName, videoTitle)
-            logger.debug("Formated name : %s" % emciFormatedName)
-            
-            logger.debug("Renaming the file %s to %s" % (videoFileName, emciFormatedName))
-            destfile = os.path.join(sourcepath, emciFormatedName)
-            
-            try:
-                os.rename(videoFileName, destfile)
-            except Exception as e:
-                logger.debug("Oh ! sorry, something bad happened." + str(e))
-            else:
-                pass
-            finally:
-                logger.debug("File renaming done for %s" % (videoFileName))
+        ## Listing files in the source folder
 
-                utils.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
-                    "video@monegliseaparis.fr",
-                    "Video renamer : videos processing report",
-                    "Hello, I have just renamed some videos and I wanted to notify you. Here are the possible errors : " + errormessage + " I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
-                    )
-        
+        for currentFile in onlyfiles:
+            #if videoFileName in files:
+            #root, dirs, files = os.walk(sourcepath)
+            #print(files)
+
+            if videoFileName == currentFile:
+                logger.debug("Bingo !!! Found one corresponding to %s" % videoFileName)
+                emciFormatedName = utils.getEmciformatedname(videoFileName, videoTitle)
+                logger.debug("Formated name : %s" % emciFormatedName)
+                
+                logger.debug("Renaming the file %s to %s" % (videoFileName, emciFormatedName))
+                destfile = os.path.join(sourcepath, emciFormatedName)
+                
+                try:
+                    os.rename(videoFileName, destfile)
+                except Exception as e:
+                    logger.debug("Oh ! sorry, something bad happened." + str(e))
+                else:
+                    pass
+                finally:
+                    logger.debug("File renaming done for %s" % (videoFileName))
+
+    utils.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
+        "video@monegliseaparis.fr",
+        "Video renamer : videos processing report",
+        "Hello, I have just renamed some videos and I wanted to notify you. Here are the possible errors : " + errormessage + " I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
+        )
+
 
 if __name__ == '__main__':
     main2()
