@@ -35,6 +35,33 @@ logger.addHandler(fh)
 
 
 
+def getEmciformatedname(videoName, videoTitle):
+
+    # if the 3rd character is not a _ abort and return the original name
+    if videoName[2:3] != '_':
+        logger.debug("The video title %s is not in the right format XX_XX_XXXXXXXXX_XXXX.ext. Returning original name" % (videoName))
+        return videoName
+    else:
+        logger.debug("Found the _ character at the right place. Countinuing")
+        pastorName = initals2Pastorname(videoName[0:2])
+        videoQuality = "1080p"
+        (base, ext) = os.path.splitext(videoName)
+        videoDate = videoName[3:-4]
+        return slugify(pastorName) + "_" + slugify(videoTitle) + "_" + slugify(videoDate) + "_" + slugify(videoQuality) + ext
+
+
+def initals2Pastorname(initials):
+
+    logger.debug("Converting initials %s to name" % initials)
+    if initials == "FL":
+        return "Franck Lefillatre"
+    elif initials == "DB":
+        return "Didier Biava"
+    elif initials == "PF":
+        return "Pierre Fauchy"
+    else:
+        return "Autres pasteurs"
+
 class FtpUploadTracker:
     sizeWritten = 0
     totalSize = 0
