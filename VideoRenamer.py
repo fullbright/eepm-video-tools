@@ -98,7 +98,7 @@ def main2():
             destfile = os.path.join(sourcepath, emciFormatedName)
             
             try:
-                utils.move_to_destination(sourcepath, sourcepath, emciFormatedName)
+                os.rename(videoFileName, destfile)
             except Exception as e:
                 logger.debug("Oh ! sorry, something bad happened." + str(e))
             else:
@@ -111,7 +111,7 @@ def main2():
                     "Video renamer : videos processing report",
                     "Hello, I have just renamed some videos and I wanted to notify you. Here are the possible errors : " + errormessage + " I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
                     )
-
+        
 
 if __name__ == '__main__':
     main2()
