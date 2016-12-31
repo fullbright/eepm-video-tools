@@ -109,10 +109,12 @@ def main2():
                 logger.debug("Formated name : %s" % emciFormatedName)
                 
                 logger.debug("Renaming the file %s to %s" % (videoFileName, emciFormatedName))
+                srcfile = os.path.join(sourcepath, videoFileName)
                 destfile = os.path.join(sourcepath, emciFormatedName)
+                logger.debug("Full names : Renaming the file %s to %s" % (srcfile, destfile))
                 
                 try:
-                    os.rename(videoFileName, destfile)
+                    os.rename(srcfile, destfile)
                 except Exception as e:
                     logger.debug("Oh ! sorry, something bad happened." + str(e))
                 else:
