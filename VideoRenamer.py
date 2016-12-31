@@ -49,19 +49,8 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 fh.setFormatter(formatter)
 logger.addHandler(fh)
 
-def main2():
-    # Read the configuration files
-    configvars = utils.load_variables("eepm_videos_processor.cfg")
-    sourcepath = configvars['emci.sourcepath'].rstrip()
-    destination = configvars['emci.destination'].rstrip()
-    errormessage = ""
 
-    validextensions = [".mp4", ".mov"]
-    fileToUpload = utils.getNextVideoToProcess(sourcepath, validextensions)
-    fileName = utils.path_leaf(fileToUpload)
-    
-    logger.debug("Starting the process ...")
-
+def get_list_of_videos():
     scope = ['https://spreadsheets.google.com/feeds']
     credentials = ServiceAccountCredentials.from_json_keyfile_name('client_secrets_gspread.json', scope)
 
@@ -77,7 +66,22 @@ def main2():
     worksheet = sht1.worksheet(SSHEETNAME)
     
     logger.debug("Getting all the values ...")
-    list_of_lists = worksheet.get_all_values()
+    return worksheet.get_all_values()
+
+
+def main2():
+    # Read the configuration files
+    configvars = utils.load_variables("eepm_videos_processor.cfg")
+    sourcepath = configvars['emci.sourcepath'].rstrip()
+    destination = configvars['emci.destination'].rstrip()
+    errormessage = ""
+
+    validextensions = [".mp4", ".mov"]
+    fileToUpload = utils.getNextVideoToProcess(sourcepath, validextensions)
+    fileName = utils.path_leaf(fileToUpload)
+    
+    logger.debug("Starting the process ...")    
+    list_of_lists = get_list_of_videos()
 
     logger.debug("Searching for %s in the spreadsheet ..." % (fileName))
     for currentList in list_of_lists:
@@ -94,7 +98,7 @@ def main2():
             destfile = os.path.join(sourcepath, emciFormatedName)
             
             try:
-                os.rename(videoFileName, destfile)
+                utils.move_to_destination(sourcepath, sourcepath, emciFormatedName)
             except Exception as e:
                 logger.debug("Oh ! sorry, something bad happened." + str(e))
             else:
@@ -108,7 +112,6 @@ def main2():
                     "Hello, I have just renamed some videos and I wanted to notify you. Here are the possible errors : " + errormessage + " I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
                     )
 
-        return values
 
 if __name__ == '__main__':
     main2()
