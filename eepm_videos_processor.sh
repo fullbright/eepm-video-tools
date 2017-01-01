@@ -93,6 +93,13 @@ else
 	##youtube_result=$(/usr/local/bin/python youtube-upload.py)
     #echo "Youtube result = $youtube_result"
 
+	## Step 6 - Do some housekeeping
+	echo "-------------------------------------------------"
+	echo "-------------- VIDEOS RENAMER ------------------"
+    echo "-------------------------------------------------"
+	videorenamer_result=$(/usr/local/bin/python VideoRenamer.py)
+	echo "Video Renamer result = $videorenamer_result"
+
 	## Step 2 - Launch the dailymotion uploader + vimeo
 	echo "-------------------------------------------------"
 	echo "----------     VIMEO UPLOAD ---------------"
