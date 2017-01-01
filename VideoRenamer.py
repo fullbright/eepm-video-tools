@@ -92,36 +92,49 @@ def main2():
 
     #logger.debug("Searching for %s in the spreadsheet ..." % (fileName))
     for currentList in list_of_lists:
-        videoFileName = currentList[0]
-        videoTitle = currentList[1]
+        videoFileName = currentList[0].strip()
+        videoTitle = currentList[1].strip()
         logger.debug("Processing video %s" % videoFileName)
 
-        ## Listing files in the source folder
+        logger.debug("Checking if there is a tittle available")
 
-        for currentFile in onlyfiles:
-            #if videoFileName in files:
-            #root, dirs, files = os.walk(sourcepath)
-            #print(files)
+        if videoFileName == "":
+            logger.debug("The video name is empty. No further search will be done. Move to the next item.")
+            
+        elif videoTitle == "":
+            logger.debug("The tittle was empty. No renaming will be done for video %s" % (videoFileName))
 
-            if videoFileName == currentFile:
-                logger.debug("Bingo !!! Found one corresponding to %s" % videoFileName)
-                emciFormatedName = utils.getEmciformatedname(videoFileName, videoTitle)
-                logger.debug("Formated name : %s" % emciFormatedName)
-                
-                logger.debug("Renaming the file %s to %s" % (videoFileName, emciFormatedName))
-                srcfile = os.path.join(sourcepath, videoFileName)
-                destfile = os.path.join(sourcepath, emciFormatedName)
-                logger.debug("Full names : Renaming the file %s to %s" % (srcfile, destfile))
-                
-                try:
-                    os.rename(srcfile, destfile)
-                except Exception as e:
-                    logger.debug("Oh ! sorry, something bad happened." + str(e))
-                else:
-                    pass
-                finally:
-                    logger.debug("File renaming done for %s" % (videoFileName))
+        else:
+            logger.debug("The tittle not empty. Processing ...")
 
+            ## Listing files in the source folder
+
+            for currentFile in onlyfiles:
+                #if videoFileName in files:
+                #root, dirs, files = os.walk(sourcepath)
+                #print(files)
+
+                if videoFileName == currentFile:
+                    logger.debug("Bingo !!! Found one corresponding to %s" % videoFileName)
+                    emciFormatedName = utils.getEmciformatedname(videoFileName, videoTitle)
+                    logger.debug("Formated name : %s" % emciFormatedName)
+                    
+                    logger.debug("Renaming the file %s to %s" % (videoFileName, emciFormatedName))
+                    srcfile = os.path.join(sourcepath, videoFileName)
+                    destfile = os.path.join(sourcepath, emciFormatedName)
+                    logger.debug("Full names : Renaming the file %s to %s" % (srcfile, destfile))
+                    
+                    try:
+                        os.rename(srcfile, destfile)
+                    except Exception as e:
+                        logger.debug("Oh ! sorry, something bad happened." + str(e))
+                    else:
+                        pass
+                    finally:
+                        logger.debug("File renaming done for %s" % (videoFileName))
+
+            logger.debug("Done for %s" % (videoFileName))
+        
     utils.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
         "video@monegliseaparis.fr",
         "Video renamer : videos processing report",
