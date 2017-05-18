@@ -1,7 +1,7 @@
 #!/bin/sh
 
-#################################### 
-# This script uploads videos to youtube 
+####################################
+# This script uploads videos to youtube
 # Author : S. Afanou
 # Date : Nov 2015
 # email : afanousergio@gmail.com
@@ -57,7 +57,7 @@ if [ -a $lockfilename ]; then
 
 	lockfilepid=`cat $lockfilename`
 	echo "lockfilepid is $lockfilepid"
-	
+
 	#ps aux | grep `cat $lockfilename` > /dev/null
 	#if [ $? -eq 0 ]; then
 	if [ "$currentpid" -eq "$lockfilepid" ]; then
@@ -104,30 +104,30 @@ else
 	echo "-------------------------------------------------"
 	echo "----------     VIMEO UPLOAD ---------------"
     echo "-------------------------------------------------"
-	vimeo_result=$(/usr/local/bin/python vimeo-upload.py)
-	echo "Vimeo result = $vimeo_result" 
+	#vimeo_result=$(/usr/local/bin/python vimeo-upload.py)
+	echo "Vimeo result = $vimeo_result"
 
 	## Step 2 - Launch the dailymotion uploader + vimeo
 	echo "-------------------------------------------------"
 	echo "----------     DAILYMOTION UPLOAD       ---------------"
     echo "-------------------------------------------------"
-	dailymotion_result=$(/usr/local/bin/python dailymotion_upload.py)
-	echo "Dailymotion result = $dailymotion_result"    
+	#dailymotion_result=$(/usr/local/bin/python dailymotion_upload.py)
+	#echo "Dailymotion result = $dailymotion_result"
 
 	## Step 3 - Launch the ftp upload for tbn and the others
 	echo "-------------------------------------------------"
 	echo "----------------- TBN UPLOAD --------------------"
     echo "-------------------------------------------------"
-	ftp_result="cannot get ftp result since it is a sh file"
-    sh ./tbn-videos-upload.sh
+	#ftp_result="cannot get ftp result since it is a sh file"
+    #sh ./tbn-videos-upload.sh
 	echo "FTP result = $ftp_result"
 
 	## Step 4 - Launch the wetransfer upload for enseignemoi and emcitv
 	echo "-------------------------------------------------"
 	echo "----------- WETRANSFER UPLOAD -------------------"
     echo "-------------------------------------------------"
-	wetransfer_result=$(/usr/local/bin/python Wetransfer.py)
-	echo "Wetransfer result = $wetransfer_result"
+	#wetransfer_result=$(/usr/local/bin/python Wetransfer.py)
+	#echo "Wetransfer result = $wetransfer_result"
 
 	## Step 5 - Launch the audio files upload for podcasts
 	echo "-------------------------------------------------"
@@ -143,7 +143,7 @@ else
 	housekeeping_result=$(/usr/local/bin/python VideoArchiver.py)
 	echo "House keeping result = $housekeeping_result"
 
-    ## Step 7 - Collecto some disk statistics on the server
+    ## Step 7 - Collect some disk statistics on the server
 	echo "-------------------------------------------------"
 	echo "-------------- STATS COLLECTION -----------------"
     echo "-------------------------------------------------"
