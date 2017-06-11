@@ -60,6 +60,7 @@ class VideoArchiver():
 
         self.log(0, "Processing the orginal %s to the destination %s" % (self.original_folder, self.new_folder))
 
+	filedate = "unknown"
         for filename in glob.glob1(self.original_folder, "*.*"):
             self.log(0,"Processing : '" + filename + "', file date : %s" % filedate)
             srcfile = os.path.join(self.original_folder, filename)
@@ -150,7 +151,7 @@ if __name__ == '__main__':
         utils.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
             "video@monegliseaparis.fr",
             "Video archiver : videos processing report",
-            "Hello, I have just archived some videos (" + str(count) + ") with size (" + sizeof_fmt(size) + ") and I wanted to notify you. Here are the possible errors : " + errormessage + " I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
+            "Hello, I have just archived some videos (" + str(count) + ") with size () and I wanted to notify you. Here are the possible errors : " + errormessage + " I am sending this email from the mac computer we use to export videos. I am an Automator application. Enjoy."
         )
 
 
