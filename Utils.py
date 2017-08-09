@@ -77,7 +77,7 @@ class FtpUploadTracker:
         self.sizeWritten += 1024
         #percentComplete = round((self.sizeWritten / self.totalSize) * 100)
         percentComplete = round((self.sizeWritten / float(self.totalSize)) * 100)
-        
+
 
         if (self.lastShownPercent != percentComplete):
             self.lastShownPercent = percentComplete
@@ -232,7 +232,7 @@ def move_to_destination(sourcepath, destinationpath, filename):
     logger.debug("Moving video file from %s to %s (%s)" % (src, dst, size))
 
     try:
-        if not os.path.isfile(dst):        
+        if not os.path.isfile(dst):
             os.rename(src, dst)
             #shutil.move(fileToUpload, destfile)
             logger.debug("File %s was successfully moved." % (filename))
@@ -244,7 +244,7 @@ def move_to_destination(sourcepath, destinationpath, filename):
         pass
     finally:
         logger.debug("File moving process finished.")
-    
+
 
 
 
@@ -344,6 +344,8 @@ def send_email(sender, recipients, subject, htmlmessage):
     """
         Sends an email using mailgun
     """
+    config_vars = load_variables("eepm_videos_processor.cfg")
+    MAILGUN_APIKEY=config_vars['mailgun_key'].rstrip()
 
     hostname = socket.gethostname()
     subject = subject + " (" + hostname + ")"
