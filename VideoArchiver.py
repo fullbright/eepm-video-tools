@@ -62,6 +62,7 @@ class VideoArchiver():
 
 	filedate = "unknown"
         for filename in glob.glob1(self.original_folder, "*.*"):
+            #filedate = os.stat(srcfile).st_mtime
             self.log(0,"Processing : '" + filename + "', file date : %s" % filedate)
             srcfile = os.path.join(self.original_folder, filename)
             destfile = os.path.join(self.new_folder, filename)
@@ -69,6 +70,7 @@ class VideoArchiver():
             #self.log(0, "Checking file %s with extension %s" % (base, ext))
 
             if ext in self.validextensions  and os.stat(srcfile).st_mtime < move_date:
+                self.log(0, "The file %s has the valid extension %s and is old enough." % (filename, ext))
                 if not os.path.isfile(destfile):
                     size = size + (os.path.getsize(srcfile) / (1024*1024.0))
                     filedate = time.ctime(os.stat(srcfile).st_mtime)
@@ -76,6 +78,10 @@ class VideoArchiver():
 
                     self.log(0,"Archived '" + filename + "', file date : %s" % filedate)
                     count = count + 1
+                else:
+                    self.log(0, "The destination file already exist. Skipping ...")
+            else:
+                self.log(0, "The file '%s' extension is not in the valid extensions, or not old enough" % filename)
 
         self.log(0,"Archived " + str(count) + " files, totalling " + str(round(size,2)) + "MB.")
         self.end(0)
