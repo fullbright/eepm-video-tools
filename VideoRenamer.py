@@ -32,8 +32,8 @@ APPLICATION_NAME = 'Google Sheets API Python Quickstart'
 CLIENT_SECRETS_FILE = "client_secrets.json"
 CREDENTIALS_STORAGE_FILE = "eepm_videos_youtube_uploader-oauth2.json"
 
-SSHEETID = '1ENlHxOp-Ue-h5p1EHpVkzEsFYp21acgPL2oWYcS-IL0' 
-SSHEETNAME = 'EXPORT PREDICATIONS 2016/2017'
+SSHEETID = '1ENlHxOp-Ue-h5p1EHpVkzEsFYp21acgPL2oWYcS-IL0'
+SSHEETNAME = '2016'
 SSHEETRANGENAME = SSHEETNAME + '!A2:AB'
 
 
@@ -66,7 +66,7 @@ def get_list_of_videos():
 
     logger.debug("Moving to worksheet name %s" % SSHEETNAME)
     worksheet = sht1.worksheet(SSHEETNAME)
-    
+
     logger.debug("Getting all the values ...")
     return worksheet.get_all_values()
 
@@ -81,13 +81,13 @@ def main2():
     validextensions = [".mp4", ".mov"]
     #fileToUpload = utils.getNextVideoToProcess(sourcepath, validextensions)
     #fileName = utils.path_leaf(fileToUpload)
-    
-    
+
+
     onlyfiles = [f for f in listdir(sourcepath) if isfile(join(sourcepath, f))]
     #print(onlyfiles)
 
 
-    logger.debug("Starting the process ...")    
+    logger.debug("Starting the process ...")
     list_of_lists = get_list_of_videos()
 
     #logger.debug("Searching for %s in the spreadsheet ..." % (fileName))
@@ -100,7 +100,7 @@ def main2():
 
         if videoFileName == "":
             logger.debug("The video name is empty. No further search will be done. Move to the next item.")
-            
+
         elif videoTitle == "":
             logger.debug("The tittle was empty. No renaming will be done for video %s" % (videoFileName))
 
@@ -118,12 +118,12 @@ def main2():
                     logger.debug("Bingo !!! Found one corresponding to %s" % videoFileName)
                     emciFormatedName = utils.getEmciformatedname(videoFileName, videoTitle)
                     logger.debug("Formated name : %s" % emciFormatedName)
-                    
+
                     logger.debug("Renaming the file %s to %s" % (videoFileName, emciFormatedName))
                     srcfile = os.path.join(sourcepath, videoFileName)
                     destfile = os.path.join(sourcepath, emciFormatedName)
                     logger.debug("Full names : Renaming the file %s to %s" % (srcfile, destfile))
-                    
+
                     try:
                         os.rename(srcfile, destfile)
                     except Exception as e:
@@ -134,7 +134,7 @@ def main2():
                         logger.debug("File renaming done for %s" % (videoFileName))
 
             logger.debug("Done for %s" % (videoFileName))
-        
+
     utils.send_email('EEPB Video Automator <mailgun@mailgun.bright-softwares.com>',
         "video@monegliseaparis.fr",
         "Video renamer : videos processing report",
