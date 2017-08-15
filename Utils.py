@@ -14,7 +14,6 @@ import socket
 from slugify import slugify
 from ftplib import FTP, FTP_TLS
 
-MAILGUN_APIKEY = 'key-44faoj5x2z0nbxz3r08todivhnh17261'
 YAMLCONFIGFILE = "settings.yaml"
 INICONFIGFILE = "eepm_videos_processor.cfg"
 
