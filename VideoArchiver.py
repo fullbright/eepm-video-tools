@@ -24,6 +24,7 @@ class VideoArchiver():
 
         self.validextensions = [".mp4", ".mov", ".mp3"]
         # end editable vars #
+		# Edit a file from GitHub
 
     # start function definitions #
     def log(self,level,msg,tofile=True):
