@@ -349,7 +349,7 @@ def send_email(sender, recipients, subject, htmlmessage):
     hostname = socket.gethostname()
     subject = subject + " (" + hostname + ")"
     attachments = {}
-    filesToAttach = ["/Applications/eepm-video-tools.app/eepm_videos_processor.log"]
+    filesToAttach = [] #["/Applications/eepm-video-tools.app/eepm_videos_processor.log"]
     index = 0
     for fileToAttach in filesToAttach:
         if(os.path.exists(fileToAttach)):
