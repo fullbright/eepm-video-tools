@@ -12,3 +12,4 @@ archives2/
 *.log.[0-9]
 *.yaml
 *.cfg
+.venv/
