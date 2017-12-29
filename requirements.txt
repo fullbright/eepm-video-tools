@@ -13,3 +13,4 @@ gspread
 jinja2
 pyyaml
 python-slugify
+nose

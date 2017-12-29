@@ -21,15 +21,17 @@ test: clean-pyc
 	#py.test --verbose --color=yes $(TEST_PATH)
 	nosetests
 
+install-and-test: install test
+
+
 install:
+	virtualenv .venv
+	. ./.venv/bin/activate
 	pip install -r requirements.txt
 
 docker-run:
-	docker build \
-      --file=./Dockerfile \
-      --tag=my_project ./
-	docker run \
-      --detach=false \
-      --name=my_project \
-      --publish=$(HOST):8080 \
-      my_project
+	#docker build --file=./Dockerfile --tag=eepm_videos_automator ./
+	#docker run --rm --detach=false --name=eepm_video_automator --publish=$(HOST):8080 ubuntu
+	#docker run --rm --detach=false --name=eepm_video_automator -v $(PWD):/app  ubuntu /bin/bash
+	#docker run --rm -it --name=eepm_video_automator -v /home/sergio/dev/eepm-video-tools:/app -w /app  python:2.7 /bin/bash
+	docker run --rm -it --name=eepm_video_automator -v /home/sergio/dev/eepm-video-tools:/app -w /app  python:2.7 make install-and-test
