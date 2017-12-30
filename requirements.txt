@@ -14,3 +14,4 @@ jinja2
 pyyaml
 python-slugify
 nose
+pep8

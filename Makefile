@@ -1,5 +1,6 @@
 HOST=127.0.0.1
 TEST_PATH=./
+CODEPATH=./
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm --force {} +
@@ -10,6 +11,15 @@ clean-build:
 	rm --force --recursive build/
 	rm --force --recursive dist/
 	rm --force --recursive *.egg-info
+
+pep8:
+	pep8 $(CODEPATH)
+
+pep8-full:
+	pep8 --show-source --show-pep8 $(CODEPATH)
+
+pep8-stats:
+	pep8 --statistics -qq $(CODEPATH)
 
 isort:
 	sh -c "isort --skip-glob=.tox --recursive . "
