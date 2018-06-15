@@ -97,13 +97,15 @@ else
 	echo "-------------------------------------------------"
 	echo "-------------- VIDEOS RENAMER ------------------"
     echo "-------------------------------------------------"
-	videorenamer_result=$(/usr/local/bin/python VideoRenamer.py)
+	echo "Suspend video renamer. Team is no longer using it."
+	#videorenamer_result=$(/usr/local/bin/python VideoRenamer.py)
 	echo "Video Renamer result = $videorenamer_result"
 
 	## Step 2 - Launch the dailymotion uploader + vimeo
 	echo "-------------------------------------------------"
 	echo "----------     VIMEO UPLOAD ---------------"
     echo "-------------------------------------------------"
+	echo "Suspend the vimeo videos upload. Team is no longer using it."
 	#vimeo_result=$(/usr/local/bin/python vimeo-upload.py)
 	echo "Vimeo result = $vimeo_result"
 
@@ -111,6 +113,7 @@ else
 	echo "-------------------------------------------------"
 	echo "----------     DAILYMOTION UPLOAD       ---------------"
     echo "-------------------------------------------------"
+	echo "Suspend dailymotion video upload. Team is no longer using it."
 	#dailymotion_result=$(/usr/local/bin/python dailymotion_upload.py)
 	#echo "Dailymotion result = $dailymotion_result"
 
@@ -133,14 +136,16 @@ else
 	echo "-------------------------------------------------"
 	echo "----------- AUDIO UPLOAD -------------------"
     echo "-------------------------------------------------"
-	audioupload_result=$(/usr/local/bin/python audio_uploader.py)
+	echo "Suspend audio upload to ftp. Team is no longer using it."
+	#audioupload_result=$(/usr/local/bin/python audio_uploader.py)
 	echo "Audio upload result = $audioupload_result"
 
 	## Step 6 - Do some housekeeping
 	echo "-------------------------------------------------"
 	echo "-------------- VIDEOS ARCHIVER ------------------"
     echo "-------------------------------------------------"
-	housekeeping_result=$(/usr/local/bin/python VideoArchiver.py)
+	echo "Suspend the archiver process. Team is no longer using it."
+	#housekeeping_result=$(/usr/local/bin/python VideoArchiver.py)
 	echo "House keeping result = $housekeeping_result"
 
     ## Step 7 - Collect some disk statistics on the server
